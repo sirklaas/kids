@@ -2,6 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import pb from '@/lib/pocketbase'
+import type { Project } from '@/lib/types'
 
 const STAGES = [
   { number: 1, label: 'Characters' },
@@ -13,34 +16,59 @@ const STAGES = [
   { number: 7, label: 'Video Prompts' },
 ]
 
-interface SidebarProps {
-  projectId?: string
-  stageReached?: number
-}
-
-export default function Sidebar({ projectId, stageReached = 1 }: SidebarProps) {
+export default function Sidebar() {
   const pathname = usePathname()
+  const [project, setProject] = useState<Project | null>(null)
+
+  const projectIdMatch = pathname.match(/^\/project\/([^/]+)/)
+  const urlProjectId = projectIdMatch?.[1] ?? null
+
+  useEffect(() => {
+    if (!urlProjectId) {
+      setProject(null)
+      return
+    }
+    pb.collection('kids_projects')
+      .getOne<Project>(urlProjectId)
+      .then(setProject)
+      .catch(() => setProject(null))
+  }, [urlProjectId])
+
+  const stageReached = project?.stage_reached ?? 1
 
   function stageHref(stageNumber: number): string | null {
-    if (!projectId) return stageNumber === 1 ? '/' : null
+    if (!urlProjectId) return stageNumber === 1 ? '/' : null
     switch (stageNumber) {
       case 1: return '/'
-      case 2: case 3: case 4: return `/project/${projectId}`
-      case 5: return `/project/${projectId}/plotboard/beginning`
-      case 6: return `/project/${projectId}/story/beginning`
-      case 7: return `/project/${projectId}/prompts/beginning`
+      case 2: case 3: case 4: return `/project/${urlProjectId}`
+      case 5: return `/project/${urlProjectId}/plotboard/beginning`
+      case 6: return `/project/${urlProjectId}/story/beginning`
+      case 7: return `/project/${urlProjectId}/prompts/beginning`
       default: return null
     }
   }
 
   function isActive(stageNumber: number): boolean {
-    if (stageNumber === 1) return pathname === '/' || pathname.startsWith('/character')
-    const href = stageHref(stageNumber)
-    if (!href) return false
-    if (stageNumber === 2 || stageNumber === 3 || stageNumber === 4) {
-      return pathname.startsWith(`/project/${projectId}`) && !pathname.includes('/plotboard') && !pathname.includes('/story') && !pathname.includes('/prompts')
+    if (stageNumber === 1) {
+      return pathname === '/' || pathname.startsWith('/character')
     }
-    return pathname.startsWith(href)
+    if (!urlProjectId) return false
+    const projectBase = `/project/${urlProjectId}`
+    if (stageNumber >= 2 && stageNumber <= 4) {
+      const onProjectPage =
+        pathname === projectBase ||
+        pathname === `${projectBase}/` ||
+        (pathname.startsWith(projectBase) &&
+          !pathname.includes('/plotboard') &&
+          !pathname.includes('/story') &&
+          !pathname.includes('/prompts'))
+      if (!onProjectPage) return false
+      return stageNumber === Math.min(stageReached, 4)
+    }
+    if (stageNumber === 5) return pathname.startsWith(`${projectBase}/plotboard`)
+    if (stageNumber === 6) return pathname.startsWith(`${projectBase}/story`)
+    if (stageNumber === 7) return pathname.startsWith(`${projectBase}/prompts`)
+    return false
   }
 
   return (
