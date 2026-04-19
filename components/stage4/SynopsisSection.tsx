@@ -19,19 +19,20 @@ export default function SynopsisSection({
   const sharedTitle = synopses[0]?.title
   const sharedSubtitle = synopses[0]?.subtitle
   return (
-    <div className="flex flex-col gap-4">
-      <div>
+    <div className="flex flex-col gap-3 h-full">
+      <div className="shrink-0">
         <div className="label">Stage 4 — Choose a Synopsis</div>
-        {sharedTitle && (
-          <div className="mt-2">
-            <div className="heading-3">{sharedTitle}</div>
-            {sharedSubtitle && (
-              <div className="text-sm text-white/40 mt-0.5">{sharedSubtitle}</div>
-            )}
-          </div>
-        )}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gridTemplateRows: '1fr 1fr',
+          gap: '12px',
+          flex: 1,
+          minHeight: 0,
+        }}
+      >
         {synopses.map((synopsis) => (
           <SynopsisCard
             key={synopsis.id}

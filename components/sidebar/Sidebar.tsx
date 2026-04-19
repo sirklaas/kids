@@ -36,7 +36,15 @@ export default function Sidebar() {
     return () => { cancelled = true }
   }, [urlProjectId])
 
-  const stageReached = project?.stage_reached ?? 1
+  const [liveStage, setLiveStage] = useState<number | null>(null)
+
+  useEffect(() => {
+    const handler = (e: Event) => setLiveStage((e as CustomEvent<number>).detail)
+    window.addEventListener('kids:stage', handler)
+    return () => window.removeEventListener('kids:stage', handler)
+  }, [])
+
+  const stageReached = liveStage ?? project?.stage_reached ?? 1
 
   function stageHref(stageNumber: number): string | null {
     if (!urlProjectId) return stageNumber === 1 ? '/' : null

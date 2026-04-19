@@ -88,10 +88,11 @@ export default function SynopsisCard({
   }
 
   return (
-    <div className="card flex flex-col h-full">
-      <div className="card-body flex flex-col gap-3 flex-1">
+    <div className="card flex flex-col" style={{ height: '100%', minHeight: 0 }}>
+      <div className="card-body flex flex-col gap-3 flex-1" style={{ minHeight: 0 }}>
         <textarea
           className="textarea text-xs flex-1"
+          style={{ resize: 'none', minHeight: 0 }}
           rows={4}
           value={mergeText(beginning, middle, end)}
           onChange={(e) => handleChange(e.target.value)}

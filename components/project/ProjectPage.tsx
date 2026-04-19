@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import StoryIdeaSection from '@/components/stage2/StoryIdeaSection'
 import TitlesSection from '@/components/stage3/TitlesSection'
@@ -53,8 +53,14 @@ export default function ProjectPage({
   const [stage3Exiting, setStage3Exiting] = useState(false)
   const [stage3Gone, setStage3Gone] = useState(initialStage >= 4)
   const [synopsesEntering, setSynopsesEntering] = useState(false)
+  const [selectedTitle, setSelectedTitle] = useState(project.selected_title || '')
+  const [selectedSubtitle, setSelectedSubtitle] = useState(project.selected_subtitle || '')
 
   const profile = buildCharacterProfile(character)
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('kids:stage', { detail: stage }))
+  }, [stage])
 
   async function handleGenerateTitles(idea: string) {
     setStoryIdea(idea)
@@ -126,6 +132,8 @@ export default function ProjectPage({
     // Delete all title-option synopses, create 4 new synopsis variations for the chosen title
     await Promise.all(synopses.map((s) => deleteSynopsis(s.id)))
 
+    setSelectedTitle(selected.title)
+    setSelectedSubtitle(selected.subtitle)
     setGeneratingSynopses(true)
     const { title: chosenTitle, subtitle: chosenSubtitle } = selected
     const ANGLES = [
@@ -242,15 +250,24 @@ export default function ProjectPage({
   }
 
   return (
-    <div>
+    <div className={stage >= 4 ? 'flex flex-col h-screen' : ''}>
       <div className="page-header">
         <div>
           <div className="label mb-1">{character.name}</div>
-          <h1 className="heading-2">Video Project</h1>
+          {stage >= 4 && selectedTitle ? (
+            <>
+              <h1 className="heading-2">{selectedTitle}</h1>
+              {selectedSubtitle && (
+                <div className="text-sm text-white/40 mt-0.5">{selectedSubtitle}</div>
+              )}
+            </>
+          ) : (
+            <h1 className="heading-2">Video Project</h1>
+          )}
         </div>
       </div>
 
-      <div className="page-body flex flex-col gap-6 max-w-6xl">
+      <div className={`page-body flex flex-col gap-6 max-w-6xl${stage >= 4 ? ' flex-1 overflow-hidden' : ''}`}>
         {!stage2Gone && (
           <div className={stage2Exiting ? 'animate-exit-up' : ''}>
             <StoryIdeaSection
@@ -280,7 +297,7 @@ export default function ProjectPage({
         )}
 
         {stage >= 4 && !generatingSynopses && (
-          <div className={synopsesEntering ? 'animate-enter-up' : ''}>
+          <div className={`flex-1 overflow-hidden${synopsesEntering ? ' animate-enter-up' : ''}`}>
             <SynopsisSection
               synopses={synopses}
               characterName={character.name}
