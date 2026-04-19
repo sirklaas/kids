@@ -2,13 +2,10 @@
 
 import type { StoryCard as StoryCardType, Act } from '@/lib/types'
 
-export type PromptField =
-  | 'environment'
-  | 'characters'
-  | 'voice_over'
-  | 'spoken_text'
-  | 'sound_effects'
-  | 'music'
+export type PromptField = Extract<
+  keyof StoryCardType,
+  'environment' | 'characters' | 'voice_over' | 'spoken_text' | 'sound_effects' | 'music'
+>
 
 function clipLabel(act: Act, order: number): string {
   const prefix = act === 'beginning' ? 'Begin' : act === 'middle' ? 'Middle' : 'End'
