@@ -41,10 +41,17 @@ export default function TitleCard({
       if (!res.ok) throw new Error(res.statusText)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : ''
-      const parsed = JSON.parse(text) as { title: string; subtitle: string }
-      setTitle(parsed.title)
-      setSubtitle(parsed.subtitle)
-      onUpdate(synopsis.id, parsed.title, parsed.subtitle)
+      let parsed: { title?: unknown; subtitle?: unknown }
+      try {
+        parsed = JSON.parse(text)
+      } catch {
+        parsed = {}
+      }
+      const newTitle = typeof parsed.title === 'string' ? parsed.title : title
+      const newSubtitle = typeof parsed.subtitle === 'string' ? parsed.subtitle : subtitle
+      setTitle(newTitle)
+      setSubtitle(newSubtitle)
+      onUpdate(synopsis.id, newTitle, newSubtitle)
     } finally {
       setLoading(false)
     }
