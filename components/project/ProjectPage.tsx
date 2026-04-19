@@ -45,6 +45,7 @@ export default function ProjectPage({
   const [synopses, setSynopses] = useState<Synopsis[]>(initialSynopses)
   const [generatingSynopses, setGeneratingSynopses] = useState(false)
   const [storyIdea, setStoryIdea] = useState(project.story_idea || '')
+  const [executeError, setExecuteError] = useState<string | null>(null)
 
   const profile = buildCharacterProfile(character)
 
@@ -154,50 +155,54 @@ export default function ProjectPage({
   async function handleExecuteSynopsis(synopsisId: string) {
     const selected = synopses.find((s) => s.id === synopsisId)
     if (!selected) return
-
-    await Promise.all([
-      updateSynopsis(synopsisId, { selected: true }),
-      updateProject(project.id, {
-        selected_title: selected.title,
-        selected_subtitle: selected.subtitle,
-        stage_reached: 5,
-      }),
-    ])
-
-    const res = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        key: 'stage5_generate_plotboard',
-        values: {
-          character_name: character.name,
-          character_profile: profile,
-          title: selected.title,
-          synopsis_beginning: selected.beginning,
-          synopsis_middle: selected.middle,
-          synopsis_end: selected.end,
-        },
-      }),
-    })
-    if (!res.ok) throw new Error(res.statusText)
-    const resData = await res.json()
-    const text = typeof resData?.text === 'string' ? resData.text : '{}'
-    let beats: { beginning?: unknown; middle?: unknown; end?: unknown }
+    setExecuteError(null)
     try {
-      beats = JSON.parse(text)
+      await Promise.all([
+        updateSynopsis(synopsisId, { selected: true }),
+        updateProject(project.id, {
+          selected_title: selected.title,
+          selected_subtitle: selected.subtitle,
+          stage_reached: 5,
+        }),
+      ])
+
+      const res = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          key: 'stage5_generate_plotboard',
+          values: {
+            character_name: character.name,
+            character_profile: profile,
+            title: selected.title,
+            synopsis_beginning: selected.beginning,
+            synopsis_middle: selected.middle,
+            synopsis_end: selected.end,
+          },
+        }),
+      })
+      if (!res.ok) throw new Error(res.statusText)
+      const resData = await res.json()
+      const text = typeof resData?.text === 'string' ? resData.text : '{}'
+      let beats: { beginning?: unknown; middle?: unknown; end?: unknown }
+      try {
+        beats = JSON.parse(text)
+      } catch {
+        beats = {}
+      }
+
+      const toStringArray = (v: unknown): string[] =>
+        Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
+
+      await createPlotCardsForProject(project.id, {
+        beginning: toStringArray(beats.beginning),
+        middle: toStringArray(beats.middle),
+        end: toStringArray(beats.end),
+      })
+      router.push(`/project/${project.id}/plotboard/beginning`)
     } catch {
-      beats = {}
+      setExecuteError('Could not generate plotboard. Please try again.')
     }
-
-    const toStringArray = (v: unknown): string[] =>
-      Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
-
-    await createPlotCardsForProject(project.id, {
-      beginning: toStringArray(beats.beginning),
-      middle: toStringArray(beats.middle),
-      end: toStringArray(beats.end),
-    })
-    router.push(`/project/${project.id}/plotboard/beginning`)
   }
 
   return (
@@ -240,6 +245,10 @@ export default function ProjectPage({
             onUpdateSynopsis={handleUpdateSynopsis}
             onExecuteSynopsis={handleExecuteSynopsis}
           />
+        )}
+
+        {executeError && (
+          <div className="text-xs text-red-400">{executeError}</div>
         )}
       </div>
     </div>
