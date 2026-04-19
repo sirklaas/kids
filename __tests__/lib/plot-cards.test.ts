@@ -18,11 +18,12 @@ vi.mock('@/lib/pocketbase', () => {
 })
 
 import pb from '@/lib/pocketbase'
-import { createPlotCardsForProject, getPlotCardsForProject } from '@/lib/plot-cards'
+import { createPlotCardsForProject, getPlotCardsForProject, updatePlotCard } from '@/lib/plot-cards'
 
 const mockCollection = vi.mocked(pb.collection)
 let mockCreate: ReturnType<typeof vi.fn>
 let mockGetFullList: ReturnType<typeof vi.fn>
+let mockUpdate: ReturnType<typeof vi.fn>
 
 beforeEach(() => {
   vi.clearAllMocks()
@@ -33,10 +34,14 @@ beforeEach(() => {
   mockGetFullList = vi.fn().mockResolvedValue([
     { id: 'card1', project_id: 'proj1', act: 'beginning', order: 1, scene_beat: 'Hero wakes up', duration_sec: 15 },
   ])
+  mockUpdate = vi.fn().mockImplementation((id: string, data: any) =>
+    Promise.resolve({ id, ...data })
+  )
 
   mockCollection.mockReturnValue({
     create: mockCreate,
     getFullList: mockGetFullList,
+    update: mockUpdate,
   } as any)
 })
 
@@ -95,5 +100,19 @@ describe('getPlotCardsForProject', () => {
     expect(mockGetFullList).toHaveBeenCalledWith(
       expect.objectContaining({ filter: expect.stringContaining('proj1'), sort: 'act,order' })
     )
+  })
+})
+
+describe('updatePlotCard', () => {
+  it('updates scene_beat and duration_sec', async () => {
+    const result = await updatePlotCard('card1', { scene_beat: 'new beat', duration_sec: 20 })
+    expect(mockUpdate).toHaveBeenCalledWith('card1', { scene_beat: 'new beat', duration_sec: 20 })
+    expect(result.scene_beat).toBe('new beat')
+    expect(result.duration_sec).toBe(20)
+  })
+
+  it('updates order only', async () => {
+    await updatePlotCard('card1', { order: 3 })
+    expect(mockUpdate).toHaveBeenCalledWith('card1', { order: 3 })
   })
 })

@@ -44,3 +44,10 @@ export async function createPlotCardsForProject(
   }
   return allCards
 }
+
+export async function updatePlotCard(
+  id: string,
+  data: Partial<Pick<PlotCard, 'scene_beat' | 'duration_sec' | 'order'>>
+): Promise<PlotCard> {
+  return pb.collection('kids_plot_cards').update<PlotCard>(id, data)
+}
