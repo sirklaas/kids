@@ -28,10 +28,12 @@ export default function Sidebar() {
       setProject(null)
       return
     }
+    let cancelled = false
     pb.collection('kids_projects')
       .getOne<Project>(urlProjectId)
-      .then(setProject)
-      .catch(() => setProject(null))
+      .then((p) => { if (!cancelled) setProject(p) })
+      .catch(() => { if (!cancelled) setProject(null) })
+    return () => { cancelled = true }
   }, [urlProjectId])
 
   const stageReached = project?.stage_reached ?? 1
