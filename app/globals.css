@@ -175,4 +175,23 @@
   /* Utility */
   .divider { @apply border-t border-white/10 my-4; }
   .stage-locked-banner { @apply text-center py-16 text-white/30 text-sm; }
+
+  /* Stage transition animations */
+  .animate-exit-up {
+    animation: exitUp 350ms ease-in forwards;
+    pointer-events: none;
+  }
+  .animate-enter-up {
+    animation: enterUp 420ms ease-out forwards;
+  }
+}
+
+@keyframes exitUp {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-28px); }
+}
+
+@keyframes enterUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

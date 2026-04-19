@@ -41,11 +41,15 @@ export default function ProjectPage({
   initialSynopses,
 }: ProjectPageProps) {
   const router = useRouter()
-  const [stage, setStage] = useState<Stage>(computeInitialStage(initialSynopses))
+  const initialStage = computeInitialStage(initialSynopses)
+  const [stage, setStage] = useState<Stage>(initialStage)
   const [synopses, setSynopses] = useState<Synopsis[]>(initialSynopses)
   const [generatingSynopses, setGeneratingSynopses] = useState(false)
   const [storyIdea, setStoryIdea] = useState(project.story_idea || '')
   const [executeError, setExecuteError] = useState<string | null>(null)
+  const [stage2Exiting, setStage2Exiting] = useState(false)
+  const [stage2Gone, setStage2Gone] = useState(initialStage >= 3)
+  const [titlesEntering, setTitlesEntering] = useState(false)
 
   const profile = buildCharacterProfile(character)
 
@@ -88,7 +92,13 @@ export default function ProjectPage({
       )
     )
     setSynopses(created)
-    setStage(3)
+    setStage2Exiting(true)
+    setTimeout(() => {
+      setStage2Gone(true)
+      setTitlesEntering(true)
+      setStage(3)
+      setTimeout(() => setTitlesEntering(false), 450)
+    }, 350)
   }
 
   function handleUpdateTitle(id: string, title: string, subtitle: string) {
@@ -216,22 +226,28 @@ export default function ProjectPage({
       </div>
 
       <div className="page-body flex flex-col gap-6 max-w-6xl">
-        <StoryIdeaSection
-          characterName={character.name}
-          characterProfile={profile}
-          initialStoryIdea={storyIdea}
-          locked={stage >= 3}
-          onGenerateTitles={handleGenerateTitles}
-        />
+        {!stage2Gone && (
+          <div className={stage2Exiting ? 'animate-exit-up' : ''}>
+            <StoryIdeaSection
+              characterName={character.name}
+              characterProfile={profile}
+              initialStoryIdea={storyIdea}
+              locked={stage >= 3}
+              onGenerateTitles={handleGenerateTitles}
+            />
+          </div>
+        )}
 
         {stage >= 3 && (
-          <TitlesSection
-            synopses={synopses}
-            characterName={character.name}
-            storyIdea={storyIdea}
-            onUpdateTitle={handleUpdateTitle}
-            onSelectTitle={handleSelectTitle}
-          />
+          <div className={titlesEntering ? 'animate-enter-up' : ''}>
+            <TitlesSection
+              synopses={synopses}
+              characterName={character.name}
+              storyIdea={storyIdea}
+              onUpdateTitle={handleUpdateTitle}
+              onSelectTitle={handleSelectTitle}
+            />
+          </div>
         )}
 
         {generatingSynopses && (
