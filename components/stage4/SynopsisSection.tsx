@@ -16,20 +16,32 @@ export default function SynopsisSection({
   onUpdateSynopsis,
   onExecuteSynopsis,
 }: SynopsisSectionProps) {
+  const sharedTitle = synopses[0]?.title
+  const sharedSubtitle = synopses[0]?.subtitle
   return (
-    <div className="flex flex-col gap-3">
-      <div className="label">Stage 4 — Choose a Synopsis</div>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 items-start">
-      {synopses.map((synopsis) => (
-        <SynopsisCard
-          key={synopsis.id}
-          synopsis={synopsis}
-          characterName={characterName}
-          storyIdea={storyIdea}
-          onUpdate={onUpdateSynopsis}
-          onExecute={onExecuteSynopsis}
-        />
-      ))}
+    <div className="flex flex-col gap-4">
+      <div>
+        <div className="label">Stage 4 — Choose a Synopsis</div>
+        {sharedTitle && (
+          <div className="mt-2">
+            <div className="heading-3">{sharedTitle}</div>
+            {sharedSubtitle && (
+              <div className="text-sm text-white/40 mt-0.5">{sharedSubtitle}</div>
+            )}
+          </div>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        {synopses.map((synopsis) => (
+          <SynopsisCard
+            key={synopsis.id}
+            synopsis={synopsis}
+            characterName={characterName}
+            storyIdea={storyIdea}
+            onUpdate={onUpdateSynopsis}
+            onExecute={onExecuteSynopsis}
+          />
+        ))}
       </div>
     </div>
   )

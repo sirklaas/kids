@@ -1,0 +1,92 @@
+<h2>Stage 7 — VideoPromptCard Revised Layout</h2>
+<p class="subtitle">1/4 prompts · 2/4 scene · 1/4 buttons — does this read better?</p>
+
+<div class="mockup">
+  <div class="mockup-header">Video Prompts — WackyWilliam_Begin_01</div>
+  <div class="mockup-body" style="padding:14px">
+
+    <div style="border:1px solid rgba(255,255,255,0.12);border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.02)">
+
+      <!-- Card header -->
+      <div style="padding:10px 14px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px">
+        <span style="font-size:0.82em;font-weight:600">WackyWilliam_Begin_01</span>
+        <span style="font-size:0.68em;font-family:monospace;opacity:0.35">Beginning — Clip 01 · 15s</span>
+      </div>
+
+      <!-- 4-column body -->
+      <div style="display:grid;grid-template-columns:1fr 2fr 1fr;min-height:220px">
+
+        <!-- LEFT 1/4 — Video Prompt Fields -->
+        <div style="padding:12px;border-right:1px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:0.62em;opacity:0.4;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Prompt Fields</div>
+
+          <div>
+            <div style="font-size:0.62em;opacity:0.4;margin-bottom:2px">Environment</div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.05);border-radius:4px;border:1px solid rgba(255,255,255,0.08);font-size:0.75em;line-height:1.4">Dark forest at night, moonlight through tall trees, mossy rocks, winding dirt path</div>
+          </div>
+
+          <div>
+            <div style="font-size:0.62em;opacity:0.4;margin-bottom:2px">Characters</div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.05);border-radius:4px;border:1px solid rgba(255,255,255,0.08);font-size:0.75em;line-height:1.4">WackyWilliam, age 8, red jacket, wide curious eyes, tiptoeing</div>
+          </div>
+
+          <div>
+            <div style="font-size:0.62em;opacity:0.4;margin-bottom:2px">Voice Over</div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.05);border-radius:4px;border:1px solid rgba(255,255,255,0.08);font-size:0.75em;line-height:1.4">Warm, whispery narrator. Curious and excited.</div>
+          </div>
+
+          <div>
+            <div style="font-size:0.62em;opacity:0.4;margin-bottom:2px">Spoken Text</div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.05);border-radius:4px;border:1px solid rgba(255,255,255,0.08);font-size:0.75em;line-height:1.4">"This is the best adventure ever!"</div>
+          </div>
+
+          <div>
+            <div style="font-size:0.62em;opacity:0.4;margin-bottom:2px">Sound Effects</div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.05);border-radius:4px;border:1px solid rgba(255,255,255,0.08);font-size:0.75em;line-height:1.4">Crunching leaves, distant owl, gentle wind</div>
+          </div>
+
+          <div>
+            <div style="font-size:0.62em;opacity:0.4;margin-bottom:2px">Music</div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.05);border-radius:4px;border:1px solid rgba(255,255,255,0.08);font-size:0.75em;line-height:1.4">Soft adventure theme, light xylophone, gentle mystery</div>
+          </div>
+        </div>
+
+        <!-- MIDDLE 2/4 — Written Scene -->
+        <div style="padding:16px 20px;border-right:1px solid rgba(255,255,255,0.07)">
+          <div style="font-size:0.62em;opacity:0.4;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Written Scene</div>
+          <div style="font-size:0.84em;line-height:1.75;color:rgba(255,255,255,0.85)">
+            The forest is dark and mysterious, with tall trees stretching up into a moonlit sky. WackyWilliam tiptoes carefully along the winding path, his eyes wide with wonder.
+            <br><br>
+            Leaves crunch softly under his feet. He pulls his jacket a little tighter and whispers to himself, <em style="color:rgba(255,255,255,0.6)">"This is the best adventure ever!"</em>
+            <br><br>
+            His voice echoes just a tiny bit between the trees, and somewhere far away a sleepy owl calls back as if answering him.
+          </div>
+          <div style="margin-top:12px;font-size:0.7em;opacity:0.3;font-style:italic">← Scene beat: Will walks into the dark forest alone</div>
+        </div>
+
+        <!-- RIGHT 1/4 — Buttons -->
+        <div style="padding:14px;display:flex;flex-direction:column;gap:8px;justify-content:center;align-items:stretch">
+          <div style="font-size:0.62em;opacity:0.4;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px">Actions</div>
+          <div style="padding:8px 12px;background:rgba(99,102,241,0.2);border-radius:6px;font-size:0.78em;text-align:center;border:1px solid rgba(99,102,241,0.35);cursor:pointer">↻ Regenerate Prompt</div>
+          <div style="padding:8px 12px;background:rgba(34,197,94,0.2);border-radius:6px;font-size:0.78em;text-align:center;border:1px solid rgba(34,197,94,0.35);cursor:pointer">▶ Send to Video AI</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Second card preview (collapsed) -->
+    <div style="border:1px solid rgba(255,255,255,0.07);border-radius:10px;overflow:hidden;background:rgba(255,255,255,0.01);margin-top:8px;opacity:0.45">
+      <div style="padding:10px 14px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:0.82em;font-weight:600">WackyWilliam_Begin_02</span>
+        <span style="font-size:0.68em;opacity:0.35">He hears a strange funny noise nearby</span>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);margin-top:10px">
+      <div style="padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:5px;font-size:0.78em;opacity:0.5">← Back to Story Page</div>
+      <div style="padding:6px 14px;background:rgba(34,197,94,0.25);border-radius:5px;font-size:0.78em;border:1px solid rgba(34,197,94,0.4)">▶ Send All to Video AI</div>
+    </div>
+
+  </div>
+</div>
+</content>

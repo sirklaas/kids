@@ -1,0 +1,57 @@
+<h2>App Navigation Architecture</h2>
+<p class="subtitle">Three approaches to structuring the 7-stage flow — which feels right?</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Spec-Faithful Hybrid <span style="font-size:0.75em;opacity:0.6;font-weight:400">— Recommended</span></h3>
+      <p>Stages 1–4 live on a single dashboard page with progressive reveal (each stage appears below the last as you advance). Stages 5, 6, 7 are full-page routes (<code>/plotboard</code>, <code>/story</code>, <code>/prompts</code>) exactly as the spec describes.</p>
+      <div style="margin-top:10px;font-size:0.82em;opacity:0.75">
+        <span style="color:#4ade80">✓</span> Matches spec intent exactly &nbsp;
+        <span style="color:#4ade80">✓</span> Focused full-page views for complex stages &nbsp;
+        <span style="color:#4ade80">✓</span> Clean URL bookmarking for Stages 5–7
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>All Routes</h3>
+      <p>Every stage is its own route: <code>/</code> → <code>/titles</code> → <code>/synopsis</code> → <code>/plotboard</code> → <code>/story</code> → <code>/prompts</code>. Browser back/forward works at every step. Progress tracked in PocketBase.</p>
+      <div style="margin-top:10px;font-size:0.82em;opacity:0.75">
+        <span style="color:#4ade80">✓</span> Cleanest routing &nbsp;
+        <span style="color:#facc15">~</span> More navigation boilerplate &nbsp;
+        <span style="color:#f87171">✗</span> Loses "stages appearing inline" feel of Stages 1–4
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Full SPA (Single Page)</h3>
+      <p>All 7 stages render on one page. Active stage is shown, others hidden. A top stepper bar shows progress. No route changes at all.</p>
+      <div style="margin-top:10px;font-size:0.82em;opacity:0.75">
+        <span style="color:#4ade80">✓</span> Simplest routing &nbsp;
+        <span style="color:#f87171">✗</span> Stages 5–7 feel cramped without full-page treatment &nbsp;
+        <span style="color:#f87171">✗</span> No shareable deep links
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;padding:16px;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.08)">
+  <div class="label">Route map for Option A</div>
+  <div style="margin-top:8px;font-family:monospace;font-size:0.85em;line-height:2;opacity:0.85">
+    <code>/</code> → Dashboard (Stages 1–4, progressive reveal)<br>
+    <code>/plotboard/[projectId]</code> → Stage 5 full-page<br>
+    <code>/story/[projectId]</code> → Stage 6 full-page<br>
+    <code>/prompts/[projectId]</code> → Stage 7 full-page
+  </div>
+</div>
+</content>
+</invoke>

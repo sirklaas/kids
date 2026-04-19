@@ -50,6 +50,9 @@ export default function ProjectPage({
   const [stage2Exiting, setStage2Exiting] = useState(false)
   const [stage2Gone, setStage2Gone] = useState(initialStage >= 3)
   const [titlesEntering, setTitlesEntering] = useState(false)
+  const [stage3Exiting, setStage3Exiting] = useState(false)
+  const [stage3Gone, setStage3Gone] = useState(initialStage >= 4)
+  const [synopsesEntering, setSynopsesEntering] = useState(false)
 
   const profile = buildCharacterProfile(character)
 
@@ -110,15 +113,28 @@ export default function ProjectPage({
     const selected = synopses.find((s) => s.id === synopsisId)
     if (!selected) return
 
+    // Start stage 3 exit immediately
+    setStage3Exiting(true)
+    setTimeout(() => setStage3Gone(true), 350)
+
     await updateProject(project.id, {
       selected_title: selected.title,
       selected_subtitle: selected.subtitle,
       stage_reached: 4,
     })
 
+    // Delete all title-option synopses, create 4 new synopsis variations for the chosen title
+    await Promise.all(synopses.map((s) => deleteSynopsis(s.id)))
+
     setGeneratingSynopses(true)
-    const updated = await Promise.all(
-      synopses.map(async (syn) => {
+    const { title: chosenTitle, subtitle: chosenSubtitle } = selected
+    const newSynopses = await Promise.all(
+      Array.from({ length: 4 }, async () => {
+        const syn = await createSynopsis({
+          project_id: project.id,
+          title: chosenTitle,
+          subtitle: chosenSubtitle,
+        })
         const res = await fetch('/api/ai', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -127,8 +143,8 @@ export default function ProjectPage({
             values: {
               character_name: character.name,
               story_idea: storyIdea,
-              title: syn.title,
-              subtitle: syn.subtitle,
+              title: chosenTitle,
+              subtitle: chosenSubtitle,
             },
           }),
         })
@@ -150,9 +166,11 @@ export default function ProjectPage({
         return { ...syn, ...synData }
       })
     )
-    setSynopses(updated)
+    setSynopses(newSynopses)
     setGeneratingSynopses(false)
+    setSynopsesEntering(true)
     setStage(4)
+    setTimeout(() => setSynopsesEntering(false), 450)
   }
 
   function handleUpdateSynopsis(
@@ -238,8 +256,8 @@ export default function ProjectPage({
           </div>
         )}
 
-        {stage >= 3 && (
-          <div className={titlesEntering ? 'animate-enter-up' : ''}>
+        {stage >= 3 && !stage3Gone && (
+          <div className={stage3Exiting ? 'animate-exit-up' : (titlesEntering ? 'animate-enter-up' : '')}>
             <TitlesSection
               synopses={synopses}
               characterName={character.name}
@@ -255,13 +273,15 @@ export default function ProjectPage({
         )}
 
         {stage >= 4 && !generatingSynopses && (
-          <SynopsisSection
-            synopses={synopses}
-            characterName={character.name}
-            storyIdea={storyIdea}
-            onUpdateSynopsis={handleUpdateSynopsis}
-            onExecuteSynopsis={handleExecuteSynopsis}
-          />
+          <div className={synopsesEntering ? 'animate-enter-up' : ''}>
+            <SynopsisSection
+              synopses={synopses}
+              characterName={character.name}
+              storyIdea={storyIdea}
+              onUpdateSynopsis={handleUpdateSynopsis}
+              onExecuteSynopsis={handleExecuteSynopsis}
+            />
+          </div>
         )}
 
         {executeError && (

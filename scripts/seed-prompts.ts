@@ -38,19 +38,19 @@ Generate one fresh alternative title and subtitle. Return ONLY a JSON object:
   },
   {
     key: 'stage4_regenerate_synopsis',
-    system_prompt: `You are a kids YouTube story writer. Create engaging 3-part story outlines suitable for children aged 4–8. Each section should be 2–3 sentences with a clear narrative arc: problem, adventure, resolution. Return ONLY a valid JSON object — no markdown, no explanation.`,
+    system_prompt: `You are a kids YouTube story writer. Write ultra-compact 3-part story synopses for children aged 4–8 — one punchy sentence per act. Make each variation feel distinct in tone or story angle. Return ONLY a valid JSON object — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
 Story idea: {{story_idea}}
 Title: {{title}}
 Subtitle: {{subtitle}}
 
-Write a story synopsis broken into three acts. Return ONLY a JSON object:
+Write a compact synopsis in exactly 3 sentences — one per act. Return ONLY a JSON object:
 {
-  "beginning": "2-3 sentences — setup and problem introduced",
-  "middle": "2-3 sentences — the main adventure or challenge",
-  "end": "2-3 sentences — resolution and lesson learned"
+  "beginning": "One sentence — the setup or problem",
+  "middle": "One sentence — the main action or adventure",
+  "end": "One sentence — the resolution or lesson"
 }`,
-    notes: 'Stage 4 — generate synopsis for one title. Returns JSON object.',
+    notes: 'Stage 4 — generate compact 3-sentence synopsis variation. Returns JSON object.',
   },
   {
     key: 'stage5_generate_plotboard',

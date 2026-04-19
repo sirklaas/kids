@@ -1,0 +1,58 @@
+<h2>Dashboard Shell — Stages 1–4</h2>
+<p class="subtitle">How should the main dashboard page look? Stages appear below each other as you progress.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Clean Canvas <span style="font-size:0.75em;opacity:0.6;font-weight:400">— Recommended</span></h3>
+      <p>No persistent sidebar or nav. Full-width page. A subtle top bar shows the active project name + stage indicator. Stages stack vertically as you progress, with completed stages collapsed/summarised above.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Dashboard — Clean Canvas</div>
+        <div class="mockup-body" style="padding:12px;font-size:0.8em">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:rgba(255,255,255,0.06);border-radius:6px;margin-bottom:12px">
+            <span style="opacity:0.5">🎬 Kids Video Dashboard</span>
+            <span style="opacity:0.5;font-size:0.85em">Stage 2 of 4 &nbsp;·&nbsp; WackyWilliam</span>
+          </div>
+          <div style="opacity:0.4;padding:6px 10px;border-left:2px solid rgba(255,255,255,0.15);margin-bottom:8px;font-size:0.85em">✓ WackyWilliam selected</div>
+          <div style="padding:10px;border:1px solid rgba(255,255,255,0.2);border-radius:6px;margin-bottom:8px">
+            <div style="font-size:0.75em;opacity:0.6;margin-bottom:4px">STAGE 2 — STORY IDEA</div>
+            <div style="background:rgba(255,255,255,0.06);padding:6px 8px;border-radius:4px;margin-bottom:6px">Will finds a strange mushroom in the forest...</div>
+            <div style="display:flex;gap:6px">
+              <div class="mock-button" style="font-size:0.75em;padding:4px 8px">Regenerate</div>
+              <div class="mock-button" style="font-size:0.75em;padding:4px 8px;background:rgba(99,102,241,0.3)">Generate Titles →</div>
+            </div>
+          </div>
+          <div style="opacity:0.3;padding:10px;border:1px dashed rgba(255,255,255,0.1);border-radius:6px;font-size:0.8em;text-align:center">Stage 3 — Titles (unlocks next)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Left Sidebar Nav</h3>
+      <p>Persistent left sidebar shows all 7 stages as navigation items. Clicking a stage takes you there (if unlocked). Main area shows the current stage content.</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-header">Dashboard — Sidebar</div>
+        <div class="mockup-body" style="padding:0;font-size:0.8em;display:flex;min-height:120px">
+          <div style="width:130px;background:rgba(0,0,0,0.3);padding:10px;flex-shrink:0">
+            <div style="font-size:0.7em;opacity:0.4;margin-bottom:8px">STAGES</div>
+            <div style="padding:4px 6px;border-radius:4px;background:rgba(99,102,241,0.3);margin-bottom:3px;font-size:0.8em">1. Characters</div>
+            <div style="padding:4px 6px;margin-bottom:3px;opacity:0.5;font-size:0.8em">2. Story Idea</div>
+            <div style="padding:4px 6px;margin-bottom:3px;opacity:0.25;font-size:0.8em">3. Titles</div>
+            <div style="padding:4px 6px;margin-bottom:3px;opacity:0.25;font-size:0.8em">4. Synopsis</div>
+            <div style="padding:4px 6px;margin-bottom:3px;opacity:0.25;font-size:0.8em">5. Plotboard →</div>
+            <div style="padding:4px 6px;margin-bottom:3px;opacity:0.25;font-size:0.8em">6. Story →</div>
+            <div style="padding:4px 6px;opacity:0.25;font-size:0.8em">7. Prompts →</div>
+          </div>
+          <div style="flex:1;padding:10px;font-size:0.85em;opacity:0.6">Character grid here...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</content>

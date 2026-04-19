@@ -1,0 +1,94 @@
+<h2>Stage 5 — Plotboard Layout</h2>
+<p class="subtitle">30 PlotCards across 3 acts (9 / 12 / 9). How should the act sections feel?</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Collapsible Act Sections <span style="font-size:0.75em;opacity:0.6;font-weight:400">— Recommended</span></h3>
+      <p>Each act is a collapsible section with its own 3-column card grid. One act open at a time. Execute button is pinned at the bottom of each act section.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Plotboard — Collapsible Acts</div>
+        <div class="mockup-body" style="padding:10px;font-size:0.78em">
+
+          <div style="border:1px solid rgba(255,255,255,0.15);border-radius:8px;margin-bottom:8px;overflow:hidden">
+            <div style="padding:8px 12px;background:rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:600">▼ BEGINNING <span style="opacity:0.4;font-weight:400;font-size:0.85em">9 clips</span></span>
+              <div style="padding:4px 10px;background:rgba(99,102,241,0.3);border-radius:4px;font-size:0.8em">▶ Execute Beginning</div>
+            </div>
+            <div style="padding:8px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
+              <div style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:0.75em">
+                <div style="opacity:0.4;font-size:0.8em;margin-bottom:2px">Begin_01 · 15s</div>
+                <div>Will walks into the dark forest...</div>
+              </div>
+              <div style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:0.75em">
+                <div style="opacity:0.4;font-size:0.8em;margin-bottom:2px">Begin_02 · 15s</div>
+                <div>He hears a strange noise...</div>
+              </div>
+              <div style="padding:6px;border:1px solid rgba(255,255,255,0.12);border-radius:5px;font-size:0.75em">
+                <div style="opacity:0.4;font-size:0.8em;margin-bottom:2px">Begin_03 · 15s</div>
+                <div>Discovers the mushroom glowing...</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px;overflow:hidden;opacity:0.5">
+            <div style="padding:8px 12px;background:rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:600">▶ MIDDLE <span style="opacity:0.4;font-weight:400;font-size:0.85em">12 clips — collapsed</span></span>
+              <div style="padding:4px 10px;background:rgba(99,102,241,0.15);border-radius:4px;font-size:0.8em">▶ Execute Middle</div>
+            </div>
+          </div>
+
+          <div style="border:1px solid rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;opacity:0.5">
+            <div style="padding:8px 12px;background:rgba(255,255,255,0.03);display:flex;justify-content:space-between;align-items:center">
+              <span style="font-weight:600">▶ END <span style="opacity:0.4;font-weight:400;font-size:0.85em">9 clips — collapsed</span></span>
+              <div style="padding:4px 10px;background:rgba(99,102,241,0.15);border-radius:4px;font-size:0.8em">▶ Execute End</div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;padding:6px 12px;border:1px dashed rgba(255,255,255,0.12);border-radius:6px;display:flex;justify-content:space-between;align-items:center">
+            <span style="opacity:0.5;font-size:0.85em">All 30 clips</span>
+            <div style="padding:4px 10px;background:rgba(99,102,241,0.2);border-radius:4px;font-size:0.8em">▶ Execute Full Plotboard</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Three Side-by-Side Columns</h3>
+      <p>All 3 acts visible at once as vertical columns. Cards stack down each column. Scroll the whole page to see all 30 cards simultaneously.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Plotboard — 3 Column Layout</div>
+        <div class="mockup-body" style="padding:10px;font-size:0.78em;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <div>
+            <div style="font-weight:600;margin-bottom:6px;font-size:0.85em;opacity:0.7">BEGINNING</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em">Begin_01 · Will walks...</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em">Begin_02 · He hears...</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em;opacity:0.4">· · ·</div>
+            <div style="padding:4px 8px;background:rgba(99,102,241,0.25);border-radius:4px;text-align:center;font-size:0.75em;margin-top:6px">▶ Execute</div>
+          </div>
+          <div>
+            <div style="font-weight:600;margin-bottom:6px;font-size:0.85em;opacity:0.7">MIDDLE</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em">Mid_01 · The mushroom...</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em">Mid_02 · Will tries...</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em;opacity:0.4">· · ·</div>
+            <div style="padding:4px 8px;background:rgba(99,102,241,0.25);border-radius:4px;text-align:center;font-size:0.75em;margin-top:6px">▶ Execute</div>
+          </div>
+          <div>
+            <div style="font-weight:600;margin-bottom:6px;font-size:0.85em;opacity:0.7">END</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em">End_01 · He brings it...</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em">End_02 · Celebration...</div>
+            <div style="padding:5px;border:1px solid rgba(255,255,255,0.1);border-radius:4px;margin-bottom:4px;font-size:0.75em;opacity:0.4">· · ·</div>
+            <div style="padding:4px 8px;background:rgba(99,102,241,0.25);border-radius:4px;text-align:center;font-size:0.75em;margin-top:6px">▶ Execute</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</content>

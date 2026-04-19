@@ -1,0 +1,62 @@
+<h2>Stage 1 — Character Grid + Project List</h2>
+<p class="subtitle">How [Use] leads into the project list. Click a layout to select it.</p>
+
+<div class="options">
+
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Slide-out Panel <span style="font-size:0.75em;opacity:0.6;font-weight:400">— Recommended</span></h3>
+      <p>Clicking [Use] opens a right-side panel listing that character's projects. Grid stays visible. Select a project or hit [+ New Video].</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">Character Grid + Panel</div>
+        <div class="mockup-body" style="padding:10px;font-size:0.78em;display:flex;gap:10px;min-height:140px">
+          <div style="flex:1">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;opacity:0.5">
+              <div style="padding:8px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;text-align:center;font-size:0.8em">🎭<br>WackyWilliam</div>
+              <div style="padding:8px;border:2px solid rgba(99,102,241,0.6);border-radius:6px;text-align:center;font-size:0.8em;opacity:1;background:rgba(99,102,241,0.1)">🌸<br>Daisy<br><span style="font-size:0.7em;opacity:0.6">▶ selected</span></div>
+              <div style="padding:8px;border:1px solid rgba(255,255,255,0.1);border-radius:6px;text-align:center;font-size:0.8em">🦊<br>FoxyFinn</div>
+            </div>
+          </div>
+          <div style="width:160px;background:rgba(0,0,0,0.4);border-radius:8px;padding:10px;border:1px solid rgba(255,255,255,0.1)">
+            <div style="font-size:0.8em;font-weight:600;margin-bottom:8px">🌸 Daisy</div>
+            <div style="padding:5px 7px;background:rgba(99,102,241,0.25);border-radius:4px;margin-bottom:4px;font-size:0.75em">📝 Mushroom Forest<br><span style="opacity:0.5;font-size:0.85em">Stage 4 · in progress</span></div>
+            <div style="padding:5px 7px;background:rgba(255,255,255,0.04);border-radius:4px;margin-bottom:6px;font-size:0.75em">✅ Birthday Cake<br><span style="opacity:0.5;font-size:0.85em">Completed</span></div>
+            <div style="padding:5px 8px;border:1px dashed rgba(99,102,241,0.5);border-radius:4px;text-align:center;font-size:0.75em;color:rgba(99,102,241,0.9)">+ New Video</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Full-Page Project List</h3>
+      <p>Clicking [Use] navigates to a dedicated <code>/character/[id]/projects</code> page showing all videos for that character in a card grid. Back button returns to character selection.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">/character/daisy/projects</div>
+        <div class="mockup-body" style="padding:10px;font-size:0.78em">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span>🌸 Daisy's Videos</span>
+            <div class="mock-button" style="font-size:0.75em;padding:4px 8px;background:rgba(99,102,241,0.3)">+ New Video</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <div style="padding:8px;border:1px solid rgba(99,102,241,0.4);border-radius:6px">
+              <div style="font-size:0.8em;font-weight:600">Mushroom Forest</div>
+              <div style="font-size:0.7em;opacity:0.5;margin:2px 0">Stage 4 — Synopsis</div>
+              <div style="font-size:0.7em;color:rgba(99,102,241,0.8)">▶ Resume</div>
+            </div>
+            <div style="padding:8px;border:1px solid rgba(255,255,255,0.1);border-radius:6px">
+              <div style="font-size:0.8em;font-weight:600">Birthday Cake</div>
+              <div style="font-size:0.7em;opacity:0.5;margin:2px 0">Completed ✅</div>
+              <div style="font-size:0.7em;opacity:0.4">View</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</content>

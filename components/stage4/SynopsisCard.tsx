@@ -89,15 +89,9 @@ export default function SynopsisCard({
   return (
     <div className="card flex flex-col h-full">
       <div className="card-body flex flex-col gap-3 flex-1">
-        <div>
-          <div className="heading-3 text-sm leading-tight">{synopsis.title}</div>
-          {synopsis.subtitle && (
-            <div className="text-xs text-white/40 mt-0.5 leading-tight">{synopsis.subtitle}</div>
-          )}
-        </div>
         <textarea
           className="textarea text-xs flex-1"
-          rows={8}
+          rows={4}
           value={mergeText(beginning, middle, end)}
           onChange={(e) => handleChange(e.target.value)}
         />
