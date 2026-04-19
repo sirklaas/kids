@@ -9,6 +9,12 @@ vi.mock('@/lib/pocketbase', () => {
         getOne: vi.fn(),
         getFullList: vi.fn(),
       }),
+      filter: vi.fn((raw: string, params?: any) => {
+        if (params && params.id) {
+          return raw.replace('{:id}', params.id)
+        }
+        return raw
+      }),
     },
   }
 })
@@ -63,7 +69,8 @@ describe('createProject', () => {
     expect(project.stage_reached).toBe(2)
     expect(project.status).toBe('in_progress')
     expect(mockCreate).toHaveBeenCalledWith(
-      expect.objectContaining({ character_id: 'char1', stage_reached: 2, status: 'in_progress' })
+      expect.objectContaining({ character_id: 'char1', stage_reached: 2, status: 'in_progress' }),
+      expect.objectContaining({ expand: 'character_id' })
     )
   })
 })

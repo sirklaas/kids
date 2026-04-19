@@ -3,7 +3,7 @@ import type { Project } from '@/lib/types'
 
 export async function getProjectsForCharacter(characterId: string): Promise<Project[]> {
   return pb.collection('kids_projects').getFullList<Project>({
-    filter: `character_id = "${characterId}"`,
+    filter: pb.filter('character_id = {:id}', { id: characterId }),
     sort: '-created',
     expand: 'character_id',
   })
@@ -16,14 +16,17 @@ export async function getProject(id: string): Promise<Project> {
 }
 
 export async function createProject(characterId: string): Promise<Project> {
-  return pb.collection('kids_projects').create<Project>({
-    character_id: characterId,
-    story_idea: '',
-    selected_title: '',
-    selected_subtitle: '',
-    stage_reached: 2,
-    status: 'in_progress',
-  })
+  return pb.collection('kids_projects').create<Project>(
+    {
+      character_id: characterId,
+      story_idea: '',
+      selected_title: '',
+      selected_subtitle: '',
+      stage_reached: 2,
+      status: 'in_progress',
+    },
+    { expand: 'character_id' }
+  )
 }
 
 export async function updateProject(
