@@ -6,7 +6,7 @@ import StoryIdeaSection from '@/components/stage2/StoryIdeaSection'
 import TitlesSection from '@/components/stage3/TitlesSection'
 import SynopsisSection from '@/components/stage4/SynopsisSection'
 import { updateProject } from '@/lib/projects'
-import { createSynopsis, updateSynopsis, deleteSynopsis } from '@/lib/synopses'
+import { getSynopsesForProject, createSynopsis, updateSynopsis, deleteSynopsis } from '@/lib/synopses'
 import { createPlotCardsForProject } from '@/lib/plot-cards'
 import type { Character, Project, Synopsis } from '@/lib/types'
 
@@ -52,8 +52,9 @@ export default function ProjectPage({
   async function handleGenerateTitles(idea: string) {
     setStoryIdea(idea)
 
-    if (synopses.length > 0) {
-      await Promise.all(synopses.map((s) => deleteSynopsis(s.id)))
+    const existing = await getSynopsesForProject(project.id)
+    if (existing.length > 0) {
+      await Promise.all(existing.map((s) => deleteSynopsis(s.id)))
     }
 
     await updateProject(project.id, { story_idea: idea, stage_reached: 3 })

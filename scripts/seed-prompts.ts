@@ -5,51 +5,56 @@ const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'https://pin
 const PROMPTS = [
   {
     key: 'stage2_regenerate',
-    system_prompt: `You are a creative kids YouTube story director. Generate alternative story directions that are fun, age-appropriate, and engaging for children aged 4–8. Keep suggestions concise — one sentence.`,
-    user_template: `Character: {{character_name}}.
+    system_prompt: `You are a creative kids YouTube story director. Suggest fresh, fun, age-appropriate story directions for children aged 4–8. Each suggestion should be concrete, visual, and showcase the character's personality. Return only the story idea text — one to two sentences, no JSON, no formatting.`,
+    user_template: `Character: {{character_name}}
 Profile: {{character_profile}}
-Current story idea: {{current_idea}}
+Current idea: {{current_idea}}
 
-Suggest one fresh alternative story direction for this character. One sentence only.`,
-    notes: 'Stage 2 — regenerate alternative story direction',
+Suggest a fresh alternative story direction for a YouTube episode featuring {{character_name}}. One or two sentences only. Return the story idea text with no formatting.`,
+    notes: 'Stage 2 — regenerate alternative story direction. Returns plain text.',
   },
   {
     key: 'stage3_generate_titles',
-    system_prompt: `You are a kids YouTube video title writer. Titles should be catchy, fun, and appeal to children aged 4–8 and their parents. Each title should make a child want to watch immediately.`,
+    system_prompt: `You are a kids YouTube video title writer. Titles should be catchy, exciting, and appeal to children aged 4–8 and their parents. Each title should make a child want to watch immediately. Return ONLY a valid JSON array — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
 Story idea: {{story_idea}}
 
-Generate exactly 5 title+subtitle pairs. Return as JSON array:
-[{"title": "...", "subtitle": "..."}, ...]`,
-    notes: 'Stage 3 — generate 5 title+subtitle pairs',
+Generate exactly 5 different title and subtitle pairs for this YouTube video.
+Return ONLY a JSON array:
+[{"title": "Short Catchy Title", "subtitle": "Descriptive subtitle that explains what happens"}, ...]`,
+    notes: 'Stage 3 — generate 5 title+subtitle pairs. Returns JSON array.',
   },
   {
     key: 'stage3_regenerate_title',
-    system_prompt: `You are a kids YouTube video title writer. Titles should be catchy, fun, and appeal to children aged 4–8 and their parents.`,
+    system_prompt: `You are a kids YouTube video title writer. Titles should be catchy, exciting, and appeal to children aged 4–8 and their parents. Return ONLY a valid JSON object — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
 Story idea: {{story_idea}}
 Current title: {{current_title}}
 Current subtitle: {{current_subtitle}}
 
-Generate one fresh alternative title+subtitle pair. Return as JSON:
+Generate one fresh alternative title and subtitle. Return ONLY a JSON object:
 {"title": "...", "subtitle": "..."}`,
-    notes: 'Stage 3 — regenerate one title card',
+    notes: 'Stage 3 — regenerate one title card. Returns JSON object.',
   },
   {
     key: 'stage4_regenerate_synopsis',
-    system_prompt: `You are a kids YouTube story writer. Create engaging 3-part story outlines with a clear beginning, middle, and end. Stories should be fun, educational, and age-appropriate for children 4–8.`,
+    system_prompt: `You are a kids YouTube story writer. Create engaging 3-part story outlines suitable for children aged 4–8. Each section should be 2–3 sentences with a clear narrative arc: problem, adventure, resolution. Return ONLY a valid JSON object — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
 Story idea: {{story_idea}}
 Title: {{title}}
 Subtitle: {{subtitle}}
 
-Write a story synopsis with three sections. Return as JSON:
-{"beginning": "...", "middle": "...", "end": "..."}`,
-    notes: 'Stage 4 — regenerate one synopsis',
+Write a story synopsis broken into three acts. Return ONLY a JSON object:
+{
+  "beginning": "2-3 sentences — setup and problem introduced",
+  "middle": "2-3 sentences — the main adventure or challenge",
+  "end": "2-3 sentences — resolution and lesson learned"
+}`,
+    notes: 'Stage 4 — generate synopsis for one title. Returns JSON object.',
   },
   {
     key: 'stage5_generate_plotboard',
-    system_prompt: `You are a kids YouTube video scene planner. You write short, vivid scene beats — one sentence each — that describe exactly what happens visually in each clip. Each beat should be concrete and easy to visualise.`,
+    system_prompt: `You are a kids YouTube scene planner. Break down a story into individual scene beats — one sentence each — describing exactly what happens visually in that clip. Beats should be concrete, visual, and easy to film. Return ONLY a valid JSON object — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
 Profile: {{character_profile}}
 Title: {{title}}
@@ -57,87 +62,117 @@ Beginning: {{synopsis_beginning}}
 Middle: {{synopsis_middle}}
 End: {{synopsis_end}}
 
-Generate exactly 30 scene beats: 9 for beginning, 12 for middle, 9 for end.
-Each beat is one sentence describing what visually happens in that clip.
-Return as JSON:
+Generate exactly 30 scene beats split across three acts.
+Each beat is one sentence describing a single visual moment in the video.
+Return ONLY a JSON object:
 {
-  "beginning": ["beat 1", "beat 2", ... 9 items],
-  "middle": ["beat 1", ... 12 items],
-  "end": ["beat 1", ... 9 items]
-}`,
-    notes: 'Stage 5 — generate all 30 plot card scene beats in one call',
+  "beginning": ["beat 1", "beat 2", "beat 3", "beat 4", "beat 5", "beat 6", "beat 7", "beat 8", "beat 9"],
+  "middle": ["beat 1", "beat 2", "beat 3", "beat 4", "beat 5", "beat 6", "beat 7", "beat 8", "beat 9", "beat 10", "beat 11", "beat 12"],
+  "end": ["beat 1", "beat 2", "beat 3", "beat 4", "beat 5", "beat 6", "beat 7", "beat 8", "beat 9"]
+}
+The beginning array must have exactly 9 items, middle exactly 12, end exactly 9.`,
+    notes: 'Stage 5 — generate all 30 plot card scene beats. Returns JSON object with 3 arrays.',
   },
   {
     key: 'stage6_write_scenes',
-    system_prompt: `You are a kids YouTube scriptwriter. Write fully realised scenes for each clip — vivid, warm, and engaging for children aged 4–8. Include what happens, what is said, the mood, and sensory details. Write in a storytelling voice.`,
+    system_prompt: `You are a kids YouTube scriptwriter. Write fully realised scenes for each clip — vivid, warm, and engaging for children aged 4–8. For each scene, also provide structured production details. Return ONLY a valid JSON array — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
 Profile: {{character_profile}}
 Act: {{act}}
-Scene beats (JSON): {{scene_beats_json}}
+Scene beats (JSON array): {{scene_beats_json}}
 
-For each scene beat, write a full scene of 3–5 sentences.
-Return as JSON array where each item matches the input order:
-["full scene 1", "full scene 2", ...]`,
-    notes: 'Stage 6 — write full scenes for all clips in an act',
+For each scene beat in the array, write a complete scene. Return ONLY a JSON array with one object per beat, in the same order:
+[
+  {
+    "written_scene": "Full narrative scene description, 3–5 sentences, vivid and engaging for kids",
+    "environment": "Visual setting for video AI (e.g. 'Bright sunny classroom with colourful posters, cartoon style')",
+    "characters": "Who appears and what they are doing (e.g. '{{character_name}} wearing a red cape, arms out wide')",
+    "voice_over": "Narrator text read aloud over this clip, 1–2 sentences",
+    "spoken_text": "Dialogue spoken on screen by characters, or empty string if none",
+    "sound_effects": "Comma-separated sound effects (e.g. 'birds chirping, footsteps on grass'), or empty string",
+    "music": "Music mood for this clip (e.g. 'upbeat ukulele, playful and bouncy')"
+  },
+  ...
+]
+The array must contain exactly the same number of items as the scene_beats_json array.`,
+    notes: 'Stage 6 — write full scenes for all clips in an act. Returns JSON array of scene objects.',
   },
   {
     key: 'stage6_regenerate_scene',
-    system_prompt: `You are a kids YouTube scriptwriter. Write vivid, warm, engaging scenes for children aged 4–8. Include what happens, what is said, the mood, and sensory details.`,
-    user_template: `Character: {{character_name}}
-Profile: {{character_profile}}
-Scene beat: {{scene_beat}}
-Current scene: {{current_scene}}
-
-Rewrite this scene fresh. 3–5 sentences. Return the scene text only, no JSON.`,
-    notes: 'Stage 6 — rewrite one scene card',
-  },
-  {
-    key: 'stage7_generate_prompts',
-    system_prompt: `You are an AI video prompt engineer for kids YouTube content. You translate written scenes into structured video generation prompts with precise visual and audio descriptions.`,
+    system_prompt: `You are a kids YouTube scriptwriter. Write vivid, warm, engaging scene narratives for children aged 4–8. Include what happens, what is said, the mood, and sensory details. Write in a warm storytelling voice. Return ONLY the scene text — no JSON, no formatting.`,
     user_template: `Character: {{character_name}}
 Profile: {{character_profile}}
 Act: {{act}}
-Scenes (JSON — array of {scene_beat, written_scene}): {{scenes_json}}
+Clip: {{clip_label}}
+Scene beat: {{scene_beat}}
 
-For each scene, generate a structured video prompt. Return as JSON array:
+Write a fresh scene narrative for this clip. 3–5 sentences, vivid and engaging for kids aged 4–8. Return the scene text only with no formatting or JSON.`,
+    notes: 'Stage 6 — rewrite one scene card. Returns plain text.',
+  },
+  {
+    key: 'stage7_generate_prompts',
+    system_prompt: `You are a video production director creating AI video generation prompts for a kids YouTube series. Translate written scenes into precise, detailed production prompts. Return ONLY a valid JSON array — no markdown, no explanation.`,
+    user_template: `Character: {{character_name}}
+Profile: {{character_profile}}
+Act: {{act}}
+Scenes (JSON array with clip_label, written_scene, scene_beat for each):
+{{scenes_json}}
+
+For each scene, generate structured video production prompts. Return ONLY a JSON array with one object per scene, in the same order:
 [
   {
-    "environment": "...",
-    "characters": "...",
-    "voice_over": "...",
-    "spoken_text": "...",
-    "sound_effects": "...",
-    "music": "..."
+    "environment": "Detailed visual environment for video AI — style, lighting, setting, mood (e.g. 'Bright cartoon-style park, golden afternoon light, lush green grass, cheerful atmosphere')",
+    "characters": "Character appearance and action description (e.g. '{{character_name}}, energetic child with curly red hair and yellow raincoat, jumping in puddles with a big grin')",
+    "voice_over": "Full narration text to be spoken over this clip by the narrator",
+    "spoken_text": "Dialogue spoken on screen by characters, or empty string",
+    "sound_effects": "Specific sound effects (e.g. 'splash of puddle, children laughing, light rain'), or empty string",
+    "music": "Music description with mood and style (e.g. 'playful ukulele melody, bright and cheerful, 110 BPM')"
   },
   ...
-]`,
-    notes: 'Stage 7 — generate video prompts for all clips in an act',
+]
+The array must contain exactly the same number of items as the input scenes array.`,
+    notes: 'Stage 7 — generate video prompts for all clips in an act. Returns JSON array of prompt objects.',
   },
   {
     key: 'stage7_regenerate_prompt',
-    system_prompt: `You are an AI video prompt engineer for kids YouTube content. Create precise, vivid video generation prompts with clear visual and audio descriptions.`,
+    system_prompt: `You are a video production director creating AI video generation prompts for a kids YouTube series. Create precise, vivid prompts for a single clip. Return ONLY a valid JSON object — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
+Profile: {{character_profile}}
+Act: {{act}}
+Clip: {{clip_label}}
 Scene beat: {{scene_beat}}
 Written scene: {{written_scene}}
 
-Generate a fresh structured video prompt. Return as JSON:
+Generate fresh structured video production prompts for this clip. Return ONLY a JSON object:
 {
-  "environment": "...",
-  "characters": "...",
-  "voice_over": "...",
-  "spoken_text": "...",
-  "sound_effects": "...",
-  "music": "..."
+  "environment": "Detailed visual environment for video AI — style, lighting, setting, mood",
+  "characters": "Character appearance and action description",
+  "voice_over": "Full narration text to be spoken over this clip",
+  "spoken_text": "Dialogue spoken on screen, or empty string",
+  "sound_effects": "Sound effects needed, or empty string",
+  "music": "Music description with mood and style"
 }`,
-    notes: 'Stage 7 — regenerate one video prompt card',
+    notes: 'Stage 7 — regenerate one video prompt card. Returns JSON object.',
   },
 ]
 
+async function upsertPrompt(data: typeof PROMPTS[number]) {
+  try {
+    const existing = await pb
+      .collection('kids_prompts')
+      .getFirstListItem(`key = "${data.key}"`)
+    await pb.collection('kids_prompts').update(existing.id, data)
+    console.log(`Updated: ${data.key}`)
+  } catch {
+    await pb.collection('kids_prompts').create(data)
+    console.log(`Created: ${data.key}`)
+  }
+}
+
 async function seed() {
-  console.log('Seeding 9 prompts...')
+  console.log(`Seeding ${PROMPTS.length} prompts to ${pb.baseURL}...`)
   for (const prompt of PROMPTS) {
-    const record = await pb.collection('kids_prompts').create(prompt)
-    console.log(`Created: ${record.key}`)
+    await upsertPrompt(prompt)
   }
   console.log('Done.')
 }

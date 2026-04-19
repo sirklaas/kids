@@ -19,9 +19,11 @@ export default function StoryIdeaSection({
 }: StoryIdeaSectionProps) {
   const [storyIdea, setStoryIdea] = useState(initialStoryIdea)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function handleRegenerate() {
     setLoading(true)
+    setError(null)
     try {
       const res = await fetch('/api/ai', {
         method: 'POST',
@@ -39,6 +41,8 @@ export default function StoryIdeaSection({
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : ''
       setStoryIdea(text.trim())
+    } catch {
+      setError('Could not regenerate. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -47,8 +51,11 @@ export default function StoryIdeaSection({
   async function handleGenerateTitles() {
     if (!storyIdea.trim()) return
     setLoading(true)
+    setError(null)
     try {
       await onGenerateTitles(storyIdea)
+    } catch {
+      setError('Could not generate titles. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -69,23 +76,26 @@ export default function StoryIdeaSection({
           onChange={(e) => setStoryIdea(e.target.value)}
           disabled={locked}
         />
-        <div className="flex gap-2 justify-end">
-          <button
-            className="btn btn-ghost"
-            onClick={handleRegenerate}
-            disabled={loading || locked}
-          >
-            ↻ Regenerate
-          </button>
-          {!locked && (
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2 justify-end">
             <button
-              className="btn btn-primary"
-              onClick={handleGenerateTitles}
-              disabled={loading || !storyIdea.trim()}
+              className="btn btn-ghost"
+              onClick={handleRegenerate}
+              disabled={loading || locked}
             >
-              {loading ? 'Generating…' : 'Generate Titles →'}
+              ↻ Regenerate
             </button>
-          )}
+            {!locked && (
+              <button
+                className="btn btn-primary"
+                onClick={handleGenerateTitles}
+                disabled={loading || !storyIdea.trim()}
+              >
+                {loading ? 'Generating…' : 'Generate Titles →'}
+              </button>
+            )}
+          </div>
+          {error && <div className="text-xs text-red-400 text-right">{error}</div>}
         </div>
       </div>
     </div>

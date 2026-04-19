@@ -68,41 +68,43 @@ export default function TitleCard({
 
   return (
     <div className="card">
-      <div className="card-body flex flex-col gap-3">
-        <input
-          className="input"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value)
-            onUpdate(synopsis.id, e.target.value, subtitle)
-          }}
-          placeholder="Title"
-        />
-        <input
-          className="input"
-          value={subtitle}
-          onChange={(e) => {
-            setSubtitle(e.target.value)
-            onUpdate(synopsis.id, title, e.target.value)
-          }}
-          placeholder="Subtitle"
-        />
-      </div>
-      <div className="card-footer">
-        <button
-          className="btn btn-ghost btn-sm"
-          onClick={handleRegenerate}
-          disabled={loading}
-        >
-          ↻ Regenerate This
-        </button>
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={handleUse}
-          disabled={loading}
-        >
-          {loading ? 'Generating synopses…' : 'Use →'}
-        </button>
+      <div className="card-body flex items-center gap-4">
+        <div className="flex-1 flex flex-col gap-2">
+          <input
+            className="input"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              onUpdate(synopsis.id, e.target.value, subtitle)
+            }}
+            placeholder="Title"
+          />
+          <input
+            className="input"
+            value={subtitle}
+            onChange={(e) => {
+              setSubtitle(e.target.value)
+              onUpdate(synopsis.id, title, e.target.value)
+            }}
+            placeholder="Subtitle"
+          />
+        </div>
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <button
+            className="btn btn-primary"
+            onClick={handleUse}
+            disabled={loading}
+          >
+            {loading ? 'Generating…' : 'Use this →'}
+          </button>
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={handleRegenerate}
+            disabled={loading}
+          >
+            ↻ Regenerate
+          </button>
+        </div>
       </div>
     </div>
   )
