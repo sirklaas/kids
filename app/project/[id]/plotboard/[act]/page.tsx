@@ -18,7 +18,7 @@ export default async function PlotboardRoute({
   if (!VALID_ACTS.includes(actParam as Act)) notFound()
   const act = actParam as Act
 
-  const project = await getProject(id)
+  const project = await getProject(id).catch(() => notFound())
   const [character, allCards] = await Promise.all([
     getCharacter(project.character_id),
     getPlotCardsForProject(id),
