@@ -30,7 +30,13 @@ export default function PlotCard({
     <div
       className="plot-card"
       draggable
-      onDragStart={() => onDragStart(index)}
+      onDragStart={(e) => {
+        if ((e.target as HTMLElement).tagName === 'TEXTAREA') {
+          e.preventDefault()
+          return
+        }
+        onDragStart(index)
+      }}
       onDragOver={(e) => {
         e.preventDefault()
         onDragOver(index)
@@ -59,7 +65,12 @@ export default function PlotCard({
           min={1}
           max={60}
           value={card.duration_sec}
-          onChange={(e) => onUpdate(card.id, card.scene_beat, Number(e.target.value))}
+          onChange={(e) => {
+            const val = parseInt(e.target.value, 10)
+            if (!Number.isNaN(val) && val >= 1 && val <= 60) {
+              onUpdate(card.id, card.scene_beat, val)
+            }
+          }}
         />
       </div>
     </div>
