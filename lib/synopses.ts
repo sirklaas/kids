@@ -18,24 +18,27 @@ export async function createSynopsis(data: {
   end?: string
   selected?: boolean
 }): Promise<Synopsis> {
-  return pb.collection('kids_synopses').create<Synopsis>({
-    project_id: data.project_id,
-    title: data.title,
-    subtitle: data.subtitle,
-    beginning: data.beginning ?? '',
-    middle: data.middle ?? '',
-    end: data.end ?? '',
-    selected: data.selected ?? false,
-  })
+  return pb.collection('kids_synopses').create<Synopsis>(
+    {
+      project_id: data.project_id,
+      title: data.title,
+      subtitle: data.subtitle,
+      beginning: data.beginning ?? '',
+      middle: data.middle ?? '',
+      end: data.end ?? '',
+      selected: data.selected ?? false,
+    },
+    { requestKey: null }
+  )
 }
 
 export async function updateSynopsis(
   id: string,
   data: Partial<Pick<Synopsis, 'title' | 'subtitle' | 'beginning' | 'middle' | 'end' | 'selected'>>
 ): Promise<Synopsis> {
-  return pb.collection('kids_synopses').update<Synopsis>(id, data)
+  return pb.collection('kids_synopses').update<Synopsis>(id, data, { requestKey: null })
 }
 
 export async function deleteSynopsis(id: string): Promise<void> {
-  await pb.collection('kids_synopses').delete(id)
+  await pb.collection('kids_synopses').delete(id, { requestKey: null })
 }

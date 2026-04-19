@@ -9,7 +9,7 @@ export interface PromptRecord {
 }
 
 export async function getPrompt(key: string): Promise<PromptRecord> {
-  return pb.collection('kids_prompts').getFirstListItem<PromptRecord>(`key = "${key}"`)
+  return pb.collection('kids_prompts').getFirstListItem<PromptRecord>(`key = "${key}"`, { requestKey: null })
 }
 
 export function fillTemplate(template: string, values: Record<string, string>): string {

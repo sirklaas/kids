@@ -6,6 +6,7 @@ export async function getPlotCardsForProject(projectId: string): Promise<PlotCar
   return pb.collection('kids_plot_cards').getFullList<PlotCard>({
     filter: pb.filter('project_id = {:id}', { id: projectId }),
     sort: 'act,order',
+    requestKey: null,
   })
 }
 
@@ -31,13 +32,16 @@ export async function createPlotCardsForProject(
   for (const { act, list } of acts) {
     const cards = await Promise.all(
       list.map((beat, i) =>
-        pb.collection('kids_plot_cards').create<PlotCard>({
-          project_id: projectId,
-          act,
-          order: i + 1,
-          scene_beat: beat,
-          duration_sec: 15,
-        })
+        pb.collection('kids_plot_cards').create<PlotCard>(
+          {
+            project_id: projectId,
+            act,
+            order: i + 1,
+            scene_beat: beat,
+            duration_sec: 15,
+          },
+          { requestKey: null }
+        )
       )
     )
     allCards.push(...cards)
@@ -49,5 +53,5 @@ export async function updatePlotCard(
   id: string,
   data: Partial<Pick<PlotCard, 'scene_beat' | 'duration_sec' | 'order'>>
 ): Promise<PlotCard> {
-  return pb.collection('kids_plot_cards').update<PlotCard>(id, data)
+  return pb.collection('kids_plot_cards').update<PlotCard>(id, data, { requestKey: null })
 }

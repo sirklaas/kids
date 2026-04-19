@@ -12,13 +12,14 @@ export async function createStoryCard(data: {
   sound_effects: string
   music: string
 }): Promise<StoryCard> {
-  return pb.collection('kids_story_cards').create<StoryCard>(data)
+  return pb.collection('kids_story_cards').create<StoryCard>(data, { requestKey: null })
 }
 
 export async function getStoryCardsForAct(projectId: string, act: Act): Promise<StoryCard[]> {
   const all = await pb.collection('kids_story_cards').getFullList<StoryCard>({
     filter: pb.filter('project_id = {:id}', { id: projectId }),
     expand: 'plot_card_id',
+    requestKey: null,
   })
   return all
     .filter((sc) => sc.expand?.plot_card_id?.act === act)
@@ -27,12 +28,12 @@ export async function getStoryCardsForAct(projectId: string, act: Act): Promise<
 
 export async function deleteStoryCardsForAct(projectId: string, act: Act): Promise<void> {
   const cards = await getStoryCardsForAct(projectId, act)
-  await Promise.all(cards.map((sc) => pb.collection('kids_story_cards').delete(sc.id)))
+  await Promise.all(cards.map((sc) => pb.collection('kids_story_cards').delete(sc.id, { requestKey: null })))
 }
 
 export async function updateStoryCard(
   id: string,
   data: Partial<Pick<StoryCard, 'written_scene' | 'environment' | 'characters' | 'voice_over' | 'spoken_text' | 'sound_effects' | 'music'>>
 ): Promise<StoryCard> {
-  return pb.collection('kids_story_cards').update<StoryCard>(id, data)
+  return pb.collection('kids_story_cards').update<StoryCard>(id, data, { requestKey: null })
 }
