@@ -121,7 +121,7 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
       await deleteStoryCardsForAct(project.id, act)
 
       await Promise.all(
-        cards.map((card, i) => {
+        cardsRef.current.map((card, i) => {
           const raw = scenes[i]
           const s =
             raw !== null && typeof raw === 'object'
