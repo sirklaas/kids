@@ -35,7 +35,9 @@ export default function StoryIdeaSection({
           },
         }),
       })
-      const { text } = await res.json() as { text: string }
+      if (!res.ok) throw new Error(res.statusText)
+      const data = await res.json()
+      const text = typeof data?.text === 'string' ? data.text : ''
       setStoryIdea(text.trim())
     } finally {
       setLoading(false)
