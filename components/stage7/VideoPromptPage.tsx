@@ -61,11 +61,11 @@ export default function VideoPromptPage({
   }
 
   async function handleRegenerate(id: string) {
+    const card = cardsRef.current.find((c) => c.id === id)
+    if (!card) return
     setRegeneratingId(id)
     setError(null)
     try {
-      const card = cardsRef.current.find((c) => c.id === id)
-      if (!card) return
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
