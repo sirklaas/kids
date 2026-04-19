@@ -35,7 +35,7 @@ export default function StoryCard({
       <textarea
         className="textarea text-xs mt-2"
         rows={5}
-        value={card.written_scene}
+        value={card.written_scene ?? ''}
         onChange={(e) => onUpdate(card.id, e.target.value)}
       />
       <div className="flex gap-2 mt-2">
