@@ -61,7 +61,7 @@ export default function VideoPromptCard({
         <div className="flex flex-col">
           <label className="field-label">Written Scene</label>
           <p className="text-xs text-white/70 leading-relaxed whitespace-pre-wrap">
-            {card.written_scene}
+            {card.written_scene ?? ''}
           </p>
         </div>
         <div className="flex flex-col gap-3 pt-5">
