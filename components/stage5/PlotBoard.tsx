@@ -39,7 +39,9 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
   const [cards, setCards] = useState(initialCards)
   const [executing, setExecuting] = useState(false)
   const [executeError, setExecuteError] = useState<string | null>(null)
+  const [reorderError, setReorderError] = useState<string | null>(null)
   const dragIndexRef = useRef<number | null>(null)
+  const cardsRef = useRef(initialCards)
 
   const actIndex = ACT_ORDER.indexOf(act)
   const prevAct = actIndex > 0 ? ACT_ORDER[actIndex - 1] : null
@@ -48,11 +50,13 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
     : `/project/${project.id}`
 
   function handleUpdate(id: string, sceneBeat: string, durationSec: number) {
-    setCards((prev) =>
-      prev.map((c) =>
+    setCards((prev) => {
+      const next = prev.map((c) =>
         c.id === id ? { ...c, scene_beat: sceneBeat, duration_sec: durationSec } : c
       )
-    )
+      cardsRef.current = next
+      return next
+    })
     updatePlotCard(id, { scene_beat: sceneBeat, duration_sec: durationSec })
   }
 
@@ -68,6 +72,7 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
       const next = [...prev]
       const [removed] = next.splice(fromIndex, 1)
       next.splice(index, 0, removed)
+      cardsRef.current = next
       return next
     })
   }
@@ -75,9 +80,14 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
   async function handleDrop() {
     if (dragIndexRef.current === null) return
     dragIndexRef.current = null
-    await Promise.all(
-      cards.map((card, i) => updatePlotCard(card.id, { order: i + 1 }))
-    )
+    const currentCards = cardsRef.current
+    try {
+      await Promise.all(
+        currentCards.map((card, i) => updatePlotCard(card.id, { order: i + 1 }))
+      )
+    } catch {
+      setReorderError('Could not save new order. Please try again.')
+    }
   }
 
   async function handleExecute() {
@@ -93,7 +103,7 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
             character_name: character.name,
             character_profile: buildCharacterProfile(character),
             act,
-            scene_beats_json: JSON.stringify(cards.map((c) => c.scene_beat)),
+            scene_beats_json: JSON.stringify(cardsRef.current.map((c) => c.scene_beat)),
           },
         }),
       })
@@ -153,17 +163,18 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
             {ACT_ORDER.map((a, i) => {
               const isActive = a === act
               const isDone = i < actIndex
+              if (!isActive && !isDone) {
+                return (
+                  <span key={a} className="act-indicator-locked">
+                    {ACT_LABELS[a]}
+                  </span>
+                )
+              }
               return (
                 <Link
                   key={a}
                   href={`/project/${project.id}/plotboard/${a}`}
-                  className={
-                    isActive
-                      ? 'act-indicator-active'
-                      : isDone
-                      ? 'act-indicator-done hover:text-white/60 transition-colors'
-                      : 'act-indicator-locked'
-                  }
+                  className={isActive ? 'act-indicator-active' : 'act-indicator-done hover:text-white/60 transition-colors'}
                 >
                   {ACT_LABELS[a]}
                 </Link>
@@ -191,9 +202,14 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
       </div>
 
       <div className="flex items-center justify-between px-6 py-4 border-t border-white/10 bg-black/20">
-        <Link href={backHref} className="btn btn-ghost">
-          ← Back
-        </Link>
+        <div className="flex flex-col gap-2 items-start">
+          <Link href={backHref} className="btn btn-ghost">
+            ← Back
+          </Link>
+          {reorderError && (
+            <div className="text-xs text-red-400">{reorderError}</div>
+          )}
+        </div>
         <div className="flex flex-col items-end gap-2">
           <button
             className="btn btn-primary"
