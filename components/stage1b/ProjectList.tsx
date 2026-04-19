@@ -40,11 +40,18 @@ function stageRoute(projectId: string, stageReached: number): string {
 export default function ProjectList({ character, projects }: ProjectListProps) {
   const router = useRouter()
   const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
 
   async function handleNewVideo() {
     setCreating(true)
-    const project = await createProject(character.id)
-    router.push(`/project/${project.id}`)
+    setCreateError(null)
+    try {
+      const project = await createProject(character.id)
+      router.push(`/project/${project.id}`)
+    } catch {
+      setCreateError('Could not create video. Please try again.')
+      setCreating(false)
+    }
   }
 
   const inProgress = projects.filter((p) => p.status === 'in_progress')
@@ -64,6 +71,9 @@ export default function ProjectList({ character, projects }: ProjectListProps) {
         >
           {creating ? 'Creating…' : '+ New Video'}
         </button>
+        {createError && (
+          <div className="text-xs text-red-400 mt-2">{createError}</div>
+        )}
       </div>
 
       <div className="page-body flex flex-col gap-6">

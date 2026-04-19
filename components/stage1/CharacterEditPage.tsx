@@ -35,24 +35,36 @@ export default function CharacterEditPage({ character }: CharacterEditPageProps)
     avatar_url: character.avatar_url,
   })
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   async function handleSave() {
     setSaving(true)
-    await updateCharacter(character.id, form)
-    router.push('/')
+    setSaveError(null)
+    try {
+      await updateCharacter(character.id, form)
+      router.push('/')
+    } catch {
+      setSaveError('Could not save. Please try again.')
+      setSaving(false)
+    }
   }
 
   return (
     <div>
       <div className="page-header">
         <h1 className="heading-2">Edit Character</h1>
-        <div className="flex gap-2">
-          <button className="btn btn-ghost" onClick={() => router.push('/')}>
-            Cancel
-          </button>
-          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save Character'}
-          </button>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <button className="btn btn-ghost" onClick={() => router.push('/')}>
+              Cancel
+            </button>
+            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving…' : 'Save Character'}
+            </button>
+          </div>
+          {saveError && (
+            <div className="text-xs text-red-400">{saveError}</div>
+          )}
         </div>
       </div>
 
