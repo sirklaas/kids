@@ -62,6 +62,9 @@ describe('createSynopsis', () => {
     expect(syn.title).toBe('Brave Adventure')
     expect(syn.beginning).toBe('')
     expect(syn.selected).toBe(false)
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ project_id: 'proj1', title: 'Brave Adventure', subtitle: 'A tale', beginning: '', middle: '', end: '', selected: false })
+    )
   })
 })
 
@@ -69,6 +72,7 @@ describe('updateSynopsis', () => {
   it('updates synopsis fields', async () => {
     const syn = await updateSynopsis('syn1', { beginning: 'The hero sets off' })
     expect(syn.beginning).toBe('The hero sets off')
+    expect(mockUpdate).toHaveBeenCalledWith('syn1', { beginning: 'The hero sets off' })
   })
 })
 
