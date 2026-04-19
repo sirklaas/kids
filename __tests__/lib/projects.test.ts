@@ -80,6 +80,7 @@ describe('updateProject', () => {
   it('updates project fields and returns updated record', async () => {
     const project = await updateProject('proj1', { stage_reached: 3 })
     expect(project.stage_reached).toBe(3)
+    expect(mockUpdate).toHaveBeenCalledWith('proj1', expect.objectContaining({ stage_reached: 3 }))
   })
 })
 
