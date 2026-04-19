@@ -57,9 +57,9 @@ describe('createPlotCardsForProject', () => {
 
   it('sets order starting from 1 within each act', async () => {
     const beats = {
-      beginning: ['beat 1', 'beat 2'],
-      middle: ['beat 1'],
-      end: ['beat 1'],
+      beginning: Array.from({ length: 9 }, (_, i) => `beat ${i + 1}`),
+      middle: Array.from({ length: 12 }, (_, i) => `beat ${i + 1}`),
+      end: Array.from({ length: 9 }, (_, i) => `beat ${i + 1}`),
     }
     await createPlotCardsForProject('proj1', beats)
     expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ act: 'beginning', order: 1 }))
@@ -67,9 +67,24 @@ describe('createPlotCardsForProject', () => {
   })
 
   it('sets default duration_sec of 15', async () => {
-    const beats = { beginning: ['beat 1'], middle: [], end: [] }
+    const beats = {
+      beginning: Array.from({ length: 9 }, (_, i) => `beat ${i + 1}`),
+      middle: Array.from({ length: 12 }, (_, i) => `beat ${i + 1}`),
+      end: Array.from({ length: 9 }, (_, i) => `beat ${i + 1}`),
+    }
     await createPlotCardsForProject('proj1', beats)
     expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ duration_sec: 15 }))
+  })
+
+  it('throws if beat count does not match ACT_CLIP_COUNTS', async () => {
+    const beats = {
+      beginning: Array.from({ length: 10 }, (_, i) => `beat ${i}`), // wrong: should be 9
+      middle: Array.from({ length: 12 }, (_, i) => `beat ${i}`),
+      end: Array.from({ length: 9 }, (_, i) => `beat ${i}`),
+    }
+    await expect(createPlotCardsForProject('proj1', beats)).rejects.toThrow(
+      'Expected 9 beats for act "beginning", got 10'
+    )
   })
 })
 
