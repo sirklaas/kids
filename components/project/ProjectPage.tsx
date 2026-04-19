@@ -215,7 +215,7 @@ export default function ProjectPage({
         </div>
       </div>
 
-      <div className="page-body flex flex-col gap-6 max-w-3xl">
+      <div className="page-body flex flex-col gap-6 max-w-6xl">
         <StoryIdeaSection
           characterName={character.name}
           characterProfile={profile}

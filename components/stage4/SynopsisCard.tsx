@@ -11,6 +11,15 @@ interface SynopsisCardProps {
   onExecute: (id: string) => Promise<void>
 }
 
+function mergeText(b: string, m: string, e: string): string {
+  return [b, m, e].filter(Boolean).join('\n\n')
+}
+
+function splitText(text: string): [string, string, string] {
+  const parts = text.split(/\n\n+/)
+  return [parts[0] ?? '', parts[1] ?? '', parts[2] ?? '']
+}
+
 export default function SynopsisCard({
   synopsis,
   characterName,
@@ -18,26 +27,17 @@ export default function SynopsisCard({
   onUpdate,
   onExecute,
 }: SynopsisCardProps) {
-  const [beginning, setBeginning] = useState(synopsis.beginning)
-  const [middle, setMiddle] = useState(synopsis.middle)
-  const [end, setEnd] = useState(synopsis.end)
+  const [beginning, setBeginning] = useState(synopsis.beginning ?? '')
+  const [middle, setMiddle] = useState(synopsis.middle ?? '')
+  const [end, setEnd] = useState(synopsis.end ?? '')
   const [loading, setLoading] = useState(false)
 
-  function getField(label: string): string {
-    if (label === 'Beginning') return beginning
-    if (label === 'Middle') return middle
-    return end
-  }
-
-  function setField(label: string, value: string) {
-    if (label === 'Beginning') setBeginning(value)
-    else if (label === 'Middle') setMiddle(value)
-    else setEnd(value)
-    onUpdate(synopsis.id, {
-      beginning: label === 'Beginning' ? value : beginning,
-      middle: label === 'Middle' ? value : middle,
-      end: label === 'End' ? value : end,
-    })
+  function handleChange(value: string) {
+    const [b, m, e] = splitText(value)
+    setBeginning(b)
+    setMiddle(m)
+    setEnd(e)
+    onUpdate(synopsis.id, { beginning: b, middle: m, end: e })
   }
 
   async function handleRegenerate() {
@@ -87,43 +87,36 @@ export default function SynopsisCard({
   }
 
   return (
-    <div className="card">
-      <div className="card-header">
+    <div className="card flex flex-col h-full">
+      <div className="card-body flex flex-col gap-3 flex-1">
         <div>
-          <div className="heading-3 text-sm">{synopsis.title}</div>
+          <div className="heading-3 text-sm leading-tight">{synopsis.title}</div>
           {synopsis.subtitle && (
-            <div className="text-xs text-white/40 mt-0.5">{synopsis.subtitle}</div>
+            <div className="text-xs text-white/40 mt-0.5 leading-tight">{synopsis.subtitle}</div>
           )}
         </div>
-      </div>
-      <div className="card-body flex flex-col gap-4">
-        {(['Beginning', 'Middle', 'End'] as const).map((label) => (
-          <div key={label}>
-            <label className="field-label">{label}</label>
-            <textarea
-              className="textarea"
-              rows={3}
-              value={getField(label)}
-              onChange={(e) => setField(label, e.target.value)}
-            />
-          </div>
-        ))}
-      </div>
-      <div className="card-footer">
-        <button
-          className="btn btn-ghost btn-sm"
-          onClick={handleRegenerate}
-          disabled={loading}
-        >
-          ↻ Regenerate
-        </button>
-        <button
-          className="btn btn-primary btn-sm"
-          onClick={handleExecute}
-          disabled={loading || !beginning || !middle || !end}
-        >
-          {loading ? 'Generating Plotboard…' : 'Execute →'}
-        </button>
+        <textarea
+          className="textarea text-xs flex-1"
+          rows={8}
+          value={mergeText(beginning, middle, end)}
+          onChange={(e) => handleChange(e.target.value)}
+        />
+        <div className="flex flex-col gap-1.5">
+          <button
+            className="btn btn-primary btn-sm w-full"
+            onClick={handleExecute}
+            disabled={loading || !beginning}
+          >
+            {loading ? 'Generating…' : 'Execute →'}
+          </button>
+          <button
+            className="btn btn-ghost btn-sm w-full"
+            onClick={handleRegenerate}
+            disabled={loading}
+          >
+            ↻ Regenerate
+          </button>
+        </div>
       </div>
     </div>
   )

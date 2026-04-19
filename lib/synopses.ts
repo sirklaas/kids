@@ -5,6 +5,7 @@ export async function getSynopsesForProject(projectId: string): Promise<Synopsis
   return pb.collection('kids_synopses').getFullList<Synopsis>({
     filter: pb.filter('project_id = {:id}', { id: projectId }),
     sort: 'created',
+    requestKey: null,
   })
 }
 
