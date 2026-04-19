@@ -128,8 +128,14 @@ export default function ProjectPage({
 
     setGeneratingSynopses(true)
     const { title: chosenTitle, subtitle: chosenSubtitle } = selected
+    const ANGLES = [
+      'emotional and heartfelt',
+      'funny and playful',
+      'action-packed and exciting',
+      'mysterious with a surprise twist',
+    ]
     const newSynopses = await Promise.all(
-      Array.from({ length: 4 }, async () => {
+      ANGLES.map(async (angle) => {
         const syn = await createSynopsis({
           project_id: project.id,
           title: chosenTitle,
@@ -145,6 +151,7 @@ export default function ProjectPage({
               story_idea: storyIdea,
               title: chosenTitle,
               subtitle: chosenSubtitle,
+              variation_angle: angle,
             },
           }),
         })

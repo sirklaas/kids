@@ -43,8 +43,9 @@ Generate one fresh alternative title and subtitle. Return ONLY a JSON object:
 Story idea: {{story_idea}}
 Title: {{title}}
 Subtitle: {{subtitle}}
+Angle: {{variation_angle}}
 
-Write a compact synopsis in exactly 3 sentences — one per act. Return ONLY a JSON object:
+Write a compact synopsis in exactly 3 sentences — one per act — with the given angle in mind. Return ONLY a JSON object:
 {
   "beginning": "One sentence — the setup or problem",
   "middle": "One sentence — the main action or adventure",

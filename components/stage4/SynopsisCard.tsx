@@ -53,6 +53,7 @@ export default function SynopsisCard({
             story_idea: storyIdea,
             title: synopsis.title,
             subtitle: synopsis.subtitle,
+            variation_angle: 'fresh and different from the current version',
           },
         }),
       })
