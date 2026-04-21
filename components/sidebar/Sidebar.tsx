@@ -7,7 +7,7 @@ import pb from '@/lib/pocketbase'
 import type { Project } from '@/lib/types'
 
 const STAGES = [
-  { number: 1, label: 'Characters' },
+  { number: 1, label: 'Series' },
   { number: 2, label: 'Story Idea' },
   { number: 3, label: 'Titles' },
   { number: 4, label: 'Synopsis' },
@@ -60,7 +60,7 @@ export default function Sidebar() {
 
   function isActive(stageNumber: number): boolean {
     if (stageNumber === 1) {
-      return pathname === '/' || pathname.startsWith('/character')
+      return pathname === '/' || pathname.startsWith('/series')
     }
     if (!urlProjectId) return false
     const projectBase = `/project/${urlProjectId}`
@@ -83,7 +83,9 @@ export default function Sidebar() {
 
   return (
     <nav className="sidebar">
-      <div className="sidebar-logo">🎬 Kids Studio</div>
+      <div className="sidebar-logo" style={{ fontFamily: 'var(--font-barlow), system-ui, sans-serif' }}>
+        🎬 Kids Studio
+      </div>
       <div className="flex flex-col py-2 flex-1">
         {STAGES.map((stage) => {
           const unlocked = stage.number <= stageReached || stage.number === 1
