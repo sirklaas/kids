@@ -42,17 +42,33 @@ export default function DesignSystemPage() {
         <section className="mb-16">
           <h2 className="text-2xl font-semibold mb-6 text-white/90">Typography</h2>
           
+          <div className="mb-6 p-4 bg-white/[0.03] rounded-lg border border-white/10">
+            <h3 className="text-sm font-medium text-white/60 mb-2">Font Stack</h3>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-white/40">Headings</p>
+                <p className="text-lg text-indigo-400">Barlow Semi Condensed</p>
+                <p className="text-xs text-white/30">Impact, modern, condensed</p>
+              </div>
+              <div>
+                <p className="text-xs text-white/40">Body Text</p>
+                <p className="text-lg text-sky-400">Inter</p>
+                <p className="text-xs text-white/30">Maximum readability</p>
+              </div>
+            </div>
+          </div>
+          
           <div className="space-y-8">
             <div>
-              <p className="text-xs text-white/40 mb-1 font-mono">heading-1</p>
+              <p className="text-xs text-white/40 mb-1 font-mono">heading-1 (Barlow Semi Condensed 400)</p>
               <h1 className="heading-1">The quick brown fox jumps</h1>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1 font-mono">heading-2</p>
+              <p className="text-xs text-white/40 mb-1 font-mono">heading-2 (Barlow Semi Condensed 400)</p>
               <h2 className="heading-2">The quick brown fox jumps over the lazy dog</h2>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1 font-mono">heading-3</p>
+              <p className="text-xs text-white/40 mb-1 font-mono">heading-3 (Barlow Semi Condensed 500)</p>
               <h3 className="heading-3">The quick brown fox jumps over the lazy dog</h3>
             </div>
             <div>
@@ -60,10 +76,12 @@ export default function DesignSystemPage() {
               <div className="label">Label Text — Used for metadata and captions</div>
             </div>
             <div>
-              <p className="text-xs text-white/40 mb-1 font-mono">Body Text</p>
-              <p className="text-base text-white/80 leading-relaxed max-w-prose">
-                The quick brown fox jumps over the lazy dog. This is body text used for longer passages. 
-                It should be comfortable to read and have appropriate line-height for the dark theme.
+              <p className="text-xs text-white/40 mb-1 font-mono">Body Text (Inter)</p>
+              <p className="text-body text-white/80">
+                The quick brown fox jumps over the lazy dog. This is body text using Inter, 
+                designed specifically for screen readability. It features tall x-height, 
+                open apertures, and excellent legibility at all sizes. Perfect for longer 
+                passages in your kids video production dashboard.
               </p>
             </div>
           </div>
