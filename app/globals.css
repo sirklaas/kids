@@ -6,8 +6,8 @@
   
   /* Typography Scale - 1.25 ratio (Major Third) */
   --text-xs: 0.75rem;      /* 12px */
-  --text-sm: 0.875rem;     /* 14px */
-  --text-base: 1rem;       /* 16px - minimum body size */
+  --text-sm: 1rem;         /* 16px - increased from 14px for readability */
+  --text-base: 1.125rem;   /* 18px - minimum body size */
   --text-lg: 1.125rem;     /* 18px */
   --text-xl: 1.25rem;      /* 20px */
   --text-2xl: 1.5rem;      /* 24px */
@@ -74,13 +74,27 @@
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
-           bg-indigo-500/80 hover:bg-indigo-500 text-white border-indigo-400/50;
+           text-white;
+    background: linear-gradient(135deg, #4F1271 0%, #3d0e58 100%);
+    border-color: rgba(233, 196, 106, 0.4);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #5a1582 0%, #4F1271 100%);
+    border-color: rgba(233, 196, 106, 0.7);
+    box-shadow: 0 4px 20px rgba(79, 18, 113, 0.4);
   }
   .btn-secondary {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
-           bg-white/10 hover:bg-white/15 text-white border-white/15;
+           text-white;
+    background: rgba(233, 196, 106, 0.15);
+    border-color: rgba(233, 196, 106, 0.3);
+  }
+  .btn-secondary:hover {
+    background: rgba(233, 196, 106, 0.25);
+    border-color: rgba(233, 196, 106, 0.5);
+    color: #e9c46a;
   }
   .btn-ghost {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
@@ -92,7 +106,15 @@
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
-           bg-amber-600/25 hover:bg-amber-600/35 text-amber-400 border-amber-500/40;
+           text-white;
+    background: linear-gradient(135deg, rgba(233, 196, 106, 0.9) 0%, rgba(202, 166, 84, 0.9) 100%);
+    border-color: rgba(79, 18, 113, 0.4);
+    color: #1a0b2e;
+  }
+  .btn-success:hover {
+    background: linear-gradient(135deg, #e9c46a 0%, #d4b055 100%);
+    border-color: rgba(79, 18, 113, 0.6);
+    box-shadow: 0 4px 20px rgba(233, 196, 106, 0.3);
   }
   .btn-danger {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
@@ -221,7 +243,7 @@
   
   .text-body-sm {
     font-family: var(--font-inter), system-ui, sans-serif;
-    font-size: 0.875rem; /* 14px - for secondary content */
+    font-size: 1rem; /* 16px - for secondary content */
     line-height: 1.5;
   }
 
@@ -271,38 +293,38 @@
   .act-indicator-done { @apply text-white/40; }
   .act-indicator-locked { @apply text-white/20; }
 
-  /* Series/Character card — clean indigo/rose tones */
+  /* Series/Character card — deep purple with gold accents */
   .character-card {
     @apply rounded-xl overflow-hidden
            p-4 flex flex-col items-center gap-3 text-center transition-all duration-300;
-    /* Clean indigo to rose gradient - no green tones */
+    /* Deep purple to subtle gold gradient */
     background: linear-gradient(
       160deg,
-      rgba(99, 102, 241, 0.12) 0%,
-      rgba(99, 102, 241, 0.05) 40%,
-      rgba(251, 113, 133, 0.06) 100%
+      rgba(79, 18, 113, 0.2) 0%,
+      rgba(79, 18, 113, 0.08) 50%,
+      rgba(233, 196, 106, 0.05) 100%
     );
-    border: 1px solid rgba(99, 102, 241, 0.25);
+    border: 1px solid rgba(79, 18, 113, 0.4);
     box-shadow: 
       0 4px 16px rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      inset 0 1px 0 rgba(233, 196, 106, 0.1);
   }
   .character-card:hover {
-    border-color: rgba(251, 113, 133, 0.4);
+    border-color: rgba(233, 196, 106, 0.4);
     box-shadow: 
-      0 8px 24px rgba(99, 102, 241, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      0 8px 24px rgba(79, 18, 113, 0.3),
+      inset 0 1px 0 rgba(233, 196, 106, 0.15);
     transform: translateY(-2px);
   }
   .character-avatar {
     @apply w-16 h-16 rounded-full flex items-center justify-center overflow-hidden;
     background: linear-gradient(
       135deg, 
-      rgba(99, 102, 241, 0.4) 0%, 
-      rgba(251, 113, 133, 0.25) 100%
+      rgba(79, 18, 113, 0.6) 0%, 
+      rgba(233, 196, 106, 0.3) 100%
     );
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    border: 2px solid rgba(233, 196, 106, 0.3);
+    box-shadow: 0 4px 12px rgba(79, 18, 113, 0.3);
   }
 
   /* Plotboard — inlines .card base */
