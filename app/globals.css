@@ -72,7 +72,7 @@
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
-           bg-indigo-600 hover:bg-indigo-700 text-white border-indigo-500;
+           bg-indigo-500/80 hover:bg-indigo-500 text-white border-indigo-400/50;
   }
   .btn-secondary {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
@@ -90,7 +90,7 @@
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
-           bg-green-600/25 hover:bg-green-600/35 text-green-400 border-green-500/40;
+           bg-amber-600/25 hover:bg-amber-600/35 text-amber-400 border-amber-500/40;
   }
   .btn-danger {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
@@ -102,12 +102,35 @@
     @apply text-xs px-3 py-1.5;
   }
 
-  /* Cards */
+  /* Cards - Level 2 Glassmorphism */
   .card {
-    @apply bg-white/[0.03] border border-white/10 rounded-xl overflow-hidden;
+    @apply rounded-xl overflow-hidden;
+    /* Multi-layer glass effect */
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
+  
   .card-selected {
-    @apply bg-indigo-600/10 border-indigo-500/40;
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.15) 0%,
+      rgba(99, 102, 241, 0.05) 100%
+    );
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: 
+      0 8px 32px rgba(99, 102, 241, 0.25),
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
   .card-header {
     @apply px-4 py-3 bg-white/[0.04] border-b border-white/10 flex items-center justify-between;
