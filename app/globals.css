@@ -86,15 +86,16 @@
   .btn-secondary {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
-           border disabled:opacity-40 disabled:cursor-not-allowed
-           text-white;
-    background: rgba(233, 196, 106, 0.15);
-    border-color: rgba(233, 196, 106, 0.3);
+           border disabled:opacity-40 disabled:cursor-not-allowed;
+    background: linear-gradient(135deg, rgba(233, 196, 106, 0.2) 0%, rgba(233, 196, 106, 0.1) 100%);
+    border-color: #e9c46a;
+    color: #e9c46a;
   }
   .btn-secondary:hover {
-    background: rgba(233, 196, 106, 0.25);
-    border-color: rgba(233, 196, 106, 0.5);
-    color: #e9c46a;
+    background: linear-gradient(135deg, #e9c46a 0%, #d4b055 100%);
+    border-color: #e9c46a;
+    color: #1a0b2e;
+    box-shadow: 0 4px 16px rgba(233, 196, 106, 0.3);
   }
   .btn-ghost {
     @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
