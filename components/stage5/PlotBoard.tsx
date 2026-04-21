@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PlotCard from './PlotCard'
@@ -43,8 +43,13 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
   const dragIndexRef = useRef<number | null>(null)
   const cardsRef = useRef(initialCards)
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('kids:stage', { detail: 5 }))
+  }, [])
+
   const actIndex = ACT_ORDER.indexOf(act)
   const prevAct = actIndex > 0 ? ACT_ORDER[actIndex - 1] : null
+  const nextAct = actIndex < ACT_ORDER.length - 1 ? ACT_ORDER[actIndex + 1] : null
   const backHref = prevAct
     ? `/project/${project.id}/plotboard/${prevAct}`
     : `/project/${project.id}`
@@ -157,35 +162,50 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
   return (
     <div>
       <div className="page-header">
-        <div className="flex flex-col gap-1.5">
-          <div className="label">{project.selected_title || 'Video Project'}</div>
-          <div className="act-indicator">
-            {ACT_ORDER.map((a, i) => {
-              const isActive = a === act
-              const isDone = i < actIndex
-              if (!isActive && !isDone) {
-                return (
-                  <span key={a} className="act-indicator-locked">
-                    {ACT_LABELS[a]}
-                  </span>
-                )
-              }
+        <div className="flex flex-col gap-0.5">
+          <div className="label mb-0.5">{character.name}</div>
+          <h1 className="heading-2 leading-tight">{project.selected_title || 'Video Project'}</h1>
+          {project.selected_subtitle && (
+            <div className="text-sm text-white/40">{project.selected_subtitle}</div>
+          )}
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Link
+            href={prevAct ? `/project/${project.id}/plotboard/${prevAct}` : `/project/${project.id}`}
+            className="btn btn-ghost btn-sm"
+          >
+            ←
+          </Link>
+          {ACT_ORDER.map((a, i) => {
+            const isActive = a === act
+            const isLocked = i > actIndex
+            if (isLocked) {
               return (
-                <Link
-                  key={a}
-                  href={`/project/${project.id}/plotboard/${a}`}
-                  className={isActive ? 'act-indicator-active' : 'act-indicator-done hover:text-white/60 transition-colors'}
-                >
+                <button key={a} className="btn btn-ghost btn-sm opacity-30" disabled>
                   {ACT_LABELS[a]}
-                </Link>
+                </button>
               )
-            })}
-          </div>
+            }
+            return (
+              <Link
+                key={a}
+                href={`/project/${project.id}/plotboard/${a}`}
+                className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-ghost'}`}
+              >
+                {ACT_LABELS[a]}
+              </Link>
+            )
+          })}
+          {nextAct && actIndex >= ACT_ORDER.indexOf(nextAct) - 1 && (
+            <Link href={`/project/${project.id}/plotboard/${nextAct}`} className="btn btn-ghost btn-sm">
+              →
+            </Link>
+          )}
         </div>
       </div>
 
       <div className="page-body">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-5">
           {cards.map((card, index) => (
             <PlotCard
               key={card.id}

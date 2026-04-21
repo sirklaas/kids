@@ -26,3 +26,14 @@ export async function buildPrompt(
     user: fillTemplate(prompt.user_template, values),
   }
 }
+
+export async function getAllPrompts(): Promise<PromptRecord[]> {
+  return pb.collection('kids_prompts').getFullList<PromptRecord>({ requestKey: null })
+}
+
+export async function updatePrompt(
+  id: string,
+  data: Partial<Pick<PromptRecord, 'system_prompt' | 'user_template' | 'notes'>>
+): Promise<PromptRecord> {
+  return pb.collection('kids_prompts').update<PromptRecord>(id, data, { requestKey: null })
+}

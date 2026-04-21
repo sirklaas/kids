@@ -37,6 +37,28 @@ Generate one fresh alternative title and subtitle. Return ONLY a JSON object:
     notes: 'Stage 3 — regenerate one title card. Returns JSON object.',
   },
   {
+    key: 'stage4_generate_synopsis',
+    system_prompt: `You are a kids YouTube story writer. Write 3 different ultra-compact 3-part story synopses for children aged 4–8 — one punchy sentence per act. Each variation should feel distinct in tone or story angle. Return ONLY a valid JSON array with 3 objects — no markdown, no explanation.`,
+    user_template: `Character: {{character_name}}
+Story idea: {{story_idea}}
+Title: {{title}}
+Subtitle: {{subtitle}}
+
+Write 3 different compact synopses for this story. Each synopsis is exactly 3 sentences — one per act (beginning, middle, end).
+Make each variation feel different in tone or approach.
+
+Return ONLY a JSON array with 3 objects:
+[
+  {
+    "beginning": "One sentence — the setup or problem",
+    "middle": "One sentence — the main action or adventure",
+    "end": "One sentence — the resolution or lesson"
+  },
+  ...
+]`,
+    notes: 'Stage 4 — generate 3 synopsis variations at once. Returns JSON array of 3 objects.',
+  },
+  {
     key: 'stage4_regenerate_synopsis',
     system_prompt: `You are a kids YouTube story writer. Write ultra-compact 3-part story synopses for children aged 4–8 — one punchy sentence per act. Make each variation feel distinct in tone or story angle. Return ONLY a valid JSON object — no markdown, no explanation.`,
     user_template: `Character: {{character_name}}
@@ -51,7 +73,7 @@ Write a compact synopsis in exactly 3 sentences — one per act — with the giv
   "middle": "One sentence — the main action or adventure",
   "end": "One sentence — the resolution or lesson"
 }`,
-    notes: 'Stage 4 — generate compact 3-sentence synopsis variation. Returns JSON object.',
+    notes: 'Stage 4 — regenerate one compact 3-sentence synopsis variation. Returns JSON object.',
   },
   {
     key: 'stage5_generate_plotboard',

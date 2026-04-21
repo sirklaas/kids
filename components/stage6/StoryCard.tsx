@@ -34,7 +34,7 @@ export default function StoryCard({
       <div className="text-xs text-white/50 mt-1 line-clamp-2">{beat}</div>
       <textarea
         className="textarea text-xs mt-2"
-        rows={5}
+        rows={10}
         value={card.written_scene ?? ''}
         onChange={(e) => onUpdate(card.id, e.target.value)}
       />

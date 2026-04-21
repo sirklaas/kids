@@ -13,6 +13,7 @@ const CHARACTERS = [
   { name: 'CuriousCarlo', title: 'The Scientist', avatar_url: '' },
   { name: 'HappyHana', title: 'The Artist', avatar_url: '' },
   { name: 'TinyTom', title: 'The Storyteller', avatar_url: '' },
+  { name: 'Emma', title: 'The Optimist', avatar_url: '' },
 ]
 
 async function seed() {

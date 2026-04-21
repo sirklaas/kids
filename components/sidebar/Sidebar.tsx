@@ -115,6 +115,15 @@ export default function Sidebar() {
             </Link>
           )
         })}
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <Link
+            href="/prompts"
+            className={`sidebar-item-${pathname === '/prompts' ? 'active' : 'unlocked'}`}
+          >
+            <span className="text-[10px] w-4 text-center">🤖</span>
+            AI Prompts
+          </Link>
+        </div>
       </div>
     </nav>
   )

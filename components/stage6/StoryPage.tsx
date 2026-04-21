@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import StoryCard from './StoryCard'
@@ -46,6 +46,59 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
   const [generatingPromptId, setGeneratingPromptId] = useState<string | null>(null)
   const [executing, setExecuting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('kids:stage', { detail: 6 }))
+  }, [])
+
+  // Auto-regenerate stories that are empty on initial load
+  const [autoGenerating, setAutoGenerating] = useState(false)
+  useEffect(() => {
+    async function fillEmptyStories() {
+      const emptyCards = cardsRef.current.filter((c) => !c.written_scene || c.written_scene.trim() === '')
+      if (emptyCards.length === 0) return
+
+      setAutoGenerating(true)
+      setError(null)
+      let hasError = false
+
+      for (const card of emptyCards) {
+        try {
+          const res = await fetch('/api/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              key: 'stage6_regenerate_scene',
+              values: {
+                character_name: character.name,
+                character_profile: buildCharacterProfile(character),
+                act,
+                scene_beat: card.expand?.plot_card_id?.scene_beat ?? '',
+                clip_label: clipLabel(act, card.expand?.plot_card_id?.order ?? 0),
+              },
+            }),
+          })
+          if (!res.ok) throw new Error(res.statusText)
+          const data = await res.json()
+          const writtenScene = typeof data?.text === 'string' ? data.text : ''
+          await updateStoryCard(card.id, { written_scene: writtenScene })
+          setCards((prev) => {
+            const next = prev.map((c) => (c.id === card.id ? { ...c, written_scene: writtenScene } : c))
+            cardsRef.current = next
+            return next
+          })
+        } catch {
+          hasError = true
+        }
+      }
+
+      if (hasError) {
+        setError('Some stories could not be generated. Click "Regenerate" to try again.')
+      }
+      setAutoGenerating(false)
+    }
+    fillEmptyStories()
+  }, [])
 
   const actIndex = ACT_ORDER.indexOf(act)
   const backHref = `/project/${project.id}/plotboard/${act}`
@@ -240,7 +293,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
       </div>
 
       <div className="page-body">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-5">
           {cards.map((card) => (
             <StoryCard
               key={card.id}
@@ -248,7 +301,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
               onUpdate={handleUpdate}
               onRegenerate={handleRegenerate}
               onGeneratePrompt={handleGeneratePrompt}
-              regenerating={regeneratingId === card.id}
+              regenerating={regeneratingId === card.id || (autoGenerating && (!card.written_scene || card.written_scene.trim() === ''))}
               generatingPrompt={generatingPromptId === card.id}
             />
           ))}

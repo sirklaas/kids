@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import VideoPromptCard, { type PromptField } from './VideoPromptCard'
 import { updateStoryCard } from '@/lib/story-cards'
@@ -47,6 +47,75 @@ export default function VideoPromptPage({
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
   const [sendingId, setSendingId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('kids:stage', { detail: 7 }))
+  }, [])
+
+  // Auto-regenerate prompts that are empty on initial load
+  const [autoGenerating, setAutoGenerating] = useState(false)
+  useEffect(() => {
+    async function fillEmptyPrompts() {
+      const emptyCards = cardsRef.current.filter((c) => !c.environment || c.environment.trim() === '')
+      if (emptyCards.length === 0) return
+
+      setAutoGenerating(true)
+      setError(null)
+      let hasError = false
+
+      for (const card of emptyCards) {
+        try {
+          const res = await fetch('/api/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              key: 'stage7_regenerate_prompt',
+              values: {
+                character_name: character.name,
+                character_profile: buildCharacterProfile(character),
+                act,
+                clip_label: clipLabel(act, card.expand?.plot_card_id?.order ?? 0),
+                written_scene: card.written_scene,
+                scene_beat: card.expand?.plot_card_id?.scene_beat ?? '',
+              },
+            }),
+          })
+          if (!res.ok) throw new Error(res.statusText)
+          const data = await res.json()
+          const text = typeof data?.text === 'string' ? data.text : '{}'
+          let parsed: Record<string, unknown>
+          try {
+            parsed = JSON.parse(text)
+          } catch {
+            parsed = {}
+          }
+          const str = (v: unknown) => (typeof v === 'string' ? v : '')
+          const updated = {
+            environment: str(parsed.environment),
+            characters: str(parsed.characters),
+            voice_over: str(parsed.voice_over),
+            spoken_text: str(parsed.spoken_text),
+            sound_effects: str(parsed.sound_effects),
+            music: str(parsed.music),
+          }
+          await updateStoryCard(card.id, updated)
+          setCards((prev) => {
+            const next = prev.map((c) => (c.id === card.id ? { ...c, ...updated } : c))
+            cardsRef.current = next
+            return next
+          })
+        } catch {
+          hasError = true
+        }
+      }
+
+      if (hasError) {
+        setError('Some prompts could not be generated. Click "Regenerate" to try again.')
+      }
+      setAutoGenerating(false)
+    }
+    fillEmptyPrompts()
+  }, [])
 
   const actIndex = ACT_ORDER.indexOf(act)
   const backHref = `/project/${project.id}/story/${act}`
@@ -163,7 +232,7 @@ export default function VideoPromptPage({
               onUpdateField={handleUpdateField}
               onRegenerate={handleRegenerate}
               onSendToVideoAI={handleSendToVideoAI}
-              regenerating={regeneratingId === card.id}
+              regenerating={regeneratingId === card.id || (autoGenerating && (!card.environment || card.environment.trim() === ''))}
               sending={sendingId === card.id}
             />
           ))}

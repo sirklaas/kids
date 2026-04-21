@@ -47,12 +47,12 @@ export default function PlotCard({
       }}
     >
       <div className="flex items-center justify-between">
-        <span className="clip-label">{clipLabel(act, card.order)}</span>
+        <span className="clip-label">{clipLabel(act, index + 1)}</span>
         <span className="plot-card-drag-handle" title="Drag to reorder">⠿</span>
       </div>
       <textarea
         className="textarea text-xs"
-        rows={3}
+        rows={6}
         value={card.scene_beat}
         onChange={(e) => onUpdate(card.id, e.target.value, card.duration_sec)}
       />
