@@ -95,7 +95,14 @@ export async function POST(request: Request): Promise<Response> {
       } : undefined,
     })
   } catch (err) {
-    console.error('[POST /api/ai]', err)
-    return Response.json({ error: 'AI request failed' }, { status: 500 })
+    console.error('[POST /api/ai] CRITICAL ERROR:', err)
+    const errorDetails = err instanceof Error 
+      ? { message: err.message, stack: err.stack, name: err.name }
+      : { raw: String(err) }
+    console.error('[POST /api/ai] DETAILS:', JSON.stringify(errorDetails, null, 2))
+    return Response.json({ 
+      error: 'AI request failed', 
+      details: errorDetails 
+    }, { status: 500 })
   }
 }
