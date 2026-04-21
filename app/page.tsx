@@ -9,7 +9,7 @@ export default async function HomePage() {
   return (
     <div>
       <div className="page-header">
-        <h1 className="heading-2">Characters</h1>
+        <h1 className="heading-2">Series</h1>
       </div>
       <div className="page-body">
         <div className="grid grid-cols-5 gap-4 max-w-4xl">
