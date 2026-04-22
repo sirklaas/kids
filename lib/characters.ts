@@ -15,3 +15,24 @@ export async function updateCharacter(
 ): Promise<Character> {
   return pb.collection('kids_characters').update<Character>(id, data)
 }
+
+export async function createCharacter(
+  data: Partial<Omit<Character, 'id' | 'collectionId' | 'collectionName' | 'created' | 'updated'>>
+): Promise<Character> {
+  return pb.collection('kids_characters').create<Character>({
+    name: 'New Character',
+    title: '',
+    avatar_url: '',
+    age: '',
+    personality: '',
+    visual_description: '',
+    voice_style: '',
+    catchphrases: '',
+    backstory: '',
+    ...data,
+  })
+}
+
+export async function deleteCharacter(id: string): Promise<boolean> {
+  return pb.collection('kids_characters').delete(id)
+}

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getSeries, updateSeries, createSeries } from '@/lib/series'
 import { Series } from '@/lib/types'
+import { Step2CharacterBuilder } from '@/components/series/Step2CharacterBuilder'
 
 interface EditSeriesPageProps {
   params: { id: string }
@@ -13,7 +14,7 @@ interface EditSeriesPageProps {
 export default function EditSeriesPage({ params }: EditSeriesPageProps) {
   const router = useRouter()
   const isNew = params.id === 'new'
-
+  
   const [series, setSeries] = useState<Partial<Series>>({
     name: '',
     description: '',
@@ -25,6 +26,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
 
   useEffect(() => {
     if (isNew) {
+      // Create new series and redirect to edit
       createSeries({ name: 'New Series' }).then((newSeries) => {
         router.replace(`/series/${newSeries.id}`)
       })
@@ -47,7 +49,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
 
   async function handleSave() {
     if (!series.name) return
-
+    
     setSaving(true)
     try {
       await updateSeries(params.id, {
@@ -77,6 +79,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <Link href="/" className="text-sm text-white/60 hover:text-white">
@@ -86,7 +89,8 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
             {isNew ? 'Create Series' : 'Edit Series'}
           </h1>
         </div>
-
+        
+        {/* Step indicator */}
         <div className="flex items-center gap-2">
           <span className={`px-4 py-2 rounded-full text-sm ${
             step === 1 ? 'bg-gold/20 text-gold' : 'bg-white/10 text-white/60'
@@ -103,10 +107,12 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
       </div>
 
       {step === 1 ? (
+        /* Step 1: Series Info Form */
         <div className="card">
           <h2 className="heading-2 mb-6">Series Information</h2>
-
+          
           <div className="space-y-6">
+            {/* Series Name */}
             <div>
               <label className="field-label">Series Name *</label>
               <input
@@ -118,6 +124,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
               />
             </div>
 
+            {/* Series Description */}
             <div>
               <label className="field-label">Description</label>
               <textarea
@@ -131,6 +138,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
               </p>
             </div>
 
+            {/* Image URL */}
             <div>
               <label className="field-label">Series Image URL</label>
               <input
@@ -150,6 +158,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
             </div>
           </div>
 
+          {/* Actions */}
           <div className="flex justify-between mt-8">
             <Link href="/">
               <button className="btn-secondary">Cancel</button>
@@ -164,17 +173,12 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
           </div>
         </div>
       ) : (
-        <div className="card text-center py-12">
-          <p className="text-body text-white/60">
-            Step 2: Character Builder coming in next task...
-          </p>
-          <button
-            onClick={() => setStep(1)}
-            className="btn-secondary mt-4"
-          >
-            ← Back to Step 1
-          </button>
-        </div>
+        <Step2CharacterBuilder
+          seriesId={params.id}
+          seriesDescription={series.description || ''}
+          onBack={() => setStep(1)}
+          onComplete={() => router.push('/')}
+        />
       )}
     </div>
   )
