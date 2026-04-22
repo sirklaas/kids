@@ -177,6 +177,77 @@ Generate fresh structured video production prompts for this clip. Return ONLY a 
 }`,
     notes: 'Stage 7 — regenerate one video prompt card. Returns JSON object.',
   },
+  // Series/Character Generation Prompts
+  {
+    key: 'character_generate',
+    stage: 1,
+    system_prompt: `You are a creative character designer for children's animated series. 
+Generate unique, memorable characters that would appeal to children ages 3-8.
+Characters should have distinct personalities, visual appeal, and potential for interesting storylines.
+Always provide detailed descriptions that can be used for both storytelling and image generation.`,
+    user_template: `Generate a character based on the following specifications:
+
+Character Type: {{character_type}}
+Personality Type: {{personality_type}}
+Series Description: {{series_description}}
+
+Please provide:
+1. Name (memorable and appropriate for children)
+2. Visual appearance (detailed description for image generation)
+3. Age group (toddler, child, teen, adult, elder)
+4. Personality traits (3-4 key traits)
+5. Catchphrase (short, memorable)
+6. Voice style (speaking characteristics)
+7. Backstory (2-3 sentences)
+
+Format the response in a structured way that can be parsed into the character fields.`,
+  },
+  {
+    key: 'nano_banana_prompt',
+    stage: 1,
+    system_prompt: `You are an expert at writing image generation prompts for AI video tools like Nano Banana.
+Create vivid, detailed prompts that describe characters for consistent image generation.
+Focus on visual appearance, style, lighting, and camera angle.`,
+    user_template: `Generate a Nano Banana image generation prompt for the following character:
+
+Name: {{name}}
+Visual Appearance: {{visual_appearance}}
+Age Group: {{age_group}}
+Personality: {{personality_traits}}
+Series Style: {{series_description}}
+
+Write a single paragraph prompt (50-100 words) that describes:
+- Physical appearance in detail
+- Clothing/outfit
+- Expression and pose
+- Art style (bright cel-shaded animation, kids cartoon style)
+- Lighting and background hint
+
+The prompt should be suitable for consistent character generation across multiple scenes.`,
+  },
+  {
+    key: 'series_characters_batch',
+    stage: 1,
+    system_prompt: `You are a creative character designer for children's animated series.
+Generate {{count}} distinct characters that work well together as an ensemble cast.
+Characters should have complementary personalities, diverse appearances, and clear roles (leader, sidekick, comic relief, etc.).
+Ensure they would have great chemistry together in stories.`,
+    user_template: `Generate {{count}} characters for a series with the following description:
+
+{{series_description}}
+
+Character Types: {{character_types}}
+Personality Mix: {{personality_types}}
+
+For each character provide:
+- Name
+- Role in the group
+- Visual description
+- Key personality trait
+- Relationship to other characters
+
+Make sure the characters feel like they belong together and would create interesting story dynamics.`,
+  },
 ]
 
 async function upsertPrompt(data: typeof PROMPTS[number]) {
