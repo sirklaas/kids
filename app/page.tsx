@@ -1,23 +1,45 @@
-import { getAllCharacters } from '@/lib/characters'
-import CharacterCard from '@/components/stage1/CharacterCard'
+import Link from 'next/link'
+import { getAllSeries } from '@/lib/series'
+import { SeriesCard } from '@/components/series/SeriesCard'
+import { getCharacterCount } from '@/lib/series-characters'
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const characters = await getAllCharacters()
+  const series = await getAllSeries()
+
+  const seriesWithCounts = await Promise.all(
+    series.map(async (s) => ({
+      ...s,
+      character_count: await getCharacterCount(s.id),
+    }))
+  )
 
   return (
-    <div>
-      <div className="page-header">
-        <h1 className="heading-2">Series</h1>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="heading-1">Series</h1>
+        <Link href="/series/new">
+          <button className="btn-primary">+ New Series</button>
+        </Link>
       </div>
-      <div className="page-body">
-        <div className="grid grid-cols-5 gap-4 max-w-4xl">
-          {characters.map((character) => (
-            <CharacterCard key={character.id} character={character} />
+
+      {seriesWithCounts.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-body text-white/60">
+            No series yet. Create your first series!
+          </p>
+          <Link href="/series/new">
+            <button className="btn-primary mt-4">Create Series</button>
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          {seriesWithCounts.map((s) => (
+            <SeriesCard key={s.id} series={s} />
           ))}
         </div>
-      </div>
+      )}
     </div>
   )
 }
