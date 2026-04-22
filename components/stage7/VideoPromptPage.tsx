@@ -224,7 +224,7 @@ export default function VideoPromptPage({
       </div>
 
       <div className="page-body">
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-8">
           {cards.map((card) => (
             <VideoPromptCard
               key={card.id}

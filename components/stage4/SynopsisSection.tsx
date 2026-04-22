@@ -28,7 +28,7 @@ export default function SynopsisSection({
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gridTemplateRows: '1fr 1fr',
-          gap: '12px',
+          gap: '1.5rem',
           flex: 1,
           minHeight: 0,
         }}

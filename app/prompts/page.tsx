@@ -123,7 +123,7 @@ export default function PromptsPage() {
           {Object.entries(promptsByStage).map(([stageNum, stagePrompts]) => (
             <div key={stageNum} className="mb-6">
               <div className="label mb-3">Stage {stageNum}</div>
-              <div className="grid gap-3">
+              <div className="grid gap-6">
                 {stagePrompts.map((prompt) => {
                   const info = STAGE_INFO[prompt.key]
                   const isSelected = selectedPrompt?.id === prompt.id

@@ -293,7 +293,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
       </div>
 
       <div className="page-body">
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-3 gap-10">
           {cards.map((card) => (
             <StoryCard
               key={card.id}

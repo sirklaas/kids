@@ -91,7 +91,7 @@ export default function SynopsisCard({
     <div className="card flex flex-col" style={{ height: '100%', minHeight: 0 }}>
       <div className="card-body flex flex-col gap-3 flex-1" style={{ minHeight: 0 }}>
         <textarea
-          className="textarea text-xs flex-1"
+          className="textarea text-sm flex-1"
           style={{ resize: 'none', minHeight: 0 }}
           rows={4}
           value={mergeText(beginning, middle, end)}

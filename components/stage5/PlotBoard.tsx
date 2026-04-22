@@ -205,7 +205,7 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
       </div>
 
       <div className="page-body">
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid grid-cols-3 gap-10">
           {cards.map((card, index) => (
             <PlotCard
               key={card.id}

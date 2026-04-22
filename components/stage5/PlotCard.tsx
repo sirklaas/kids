@@ -51,7 +51,7 @@ export default function PlotCard({
         <span className="plot-card-drag-handle" title="Drag to reorder">⠿</span>
       </div>
       <textarea
-        className="textarea text-xs"
+        className="textarea text-sm"
         rows={6}
         value={card.scene_beat}
         onChange={(e) => onUpdate(card.id, e.target.value, card.duration_sec)}
@@ -59,7 +59,7 @@ export default function PlotCard({
       <div className="flex items-center gap-2">
         <span className="field-label shrink-0 mb-0">Duration (s)</span>
         <input
-          className="input text-xs"
+          className="input text-sm"
           style={{ width: '4rem' }}
           type="number"
           min={1}
