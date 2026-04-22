@@ -54,10 +54,10 @@ function boolField(name: string) {
 function selectField(name: string, values: string[]) {
   return { name, type: 'select', required: false, options: { maxSelect: 1, values } }
 }
-function relationField(name: string, collectionId: string) {
+function relationField(name: string, collectionId: string, opts: { required?: boolean; cascadeDelete?: boolean } = {}) {
   return {
-    name, type: 'relation', required: false,
-    options: { collectionId, cascadeDelete: false, minSelect: null, maxSelect: 1, displayFields: [] },
+    name, type: 'relation', required: opts.required ?? false,
+    options: { collectionId, cascadeDelete: opts.cascadeDelete ?? false, minSelect: null, maxSelect: 1, displayFields: [] },
   }
 }
 
@@ -82,16 +82,44 @@ async function main() {
       textField('voice_style'),
       textField('catchphrases'),
       textField('backstory'),
+      textField('nano_banana_prompt'),
+      textField('character_type'),
+      textField('personality_type'),
     ],
     ...OPEN_RULES,
   })
 
-  // 2. kids_projects — relation to kids_characters
+  // 1b. kids_series — standalone series collection
+  const series = await createOrGet(token, {
+    name: 'kids_series',
+    type: 'base',
+    schema: [
+      textField('name', true),
+      textField('description'),
+      textField('image_url'),
+    ],
+    ...OPEN_RULES,
+  })
+
+  // 1c. kids_series_characters — link table between series and characters
+  await createOrGet(token, {
+    name: 'kids_series_characters',
+    type: 'base',
+    schema: [
+      relationField('series_id', series.id, { required: true, cascadeDelete: true }),
+      relationField('character_id', chars.id, { required: true, cascadeDelete: false }),
+      { name: 'character_order', type: 'number', required: true, options: { min: 1, max: 8 } },
+      boolField('is_main_character'),
+    ],
+    ...OPEN_RULES,
+  })
+
+  // 2. kids_projects — relation to kids_series
   const projects = await createOrGet(token, {
     name: 'kids_projects',
     type: 'base',
     schema: [
-      relationField('character_id', chars.id),
+      relationField('series_id', series.id),
       textField('story_idea'),
       textField('selected_title'),
       textField('selected_subtitle'),
@@ -162,7 +190,7 @@ async function main() {
     ...OPEN_RULES,
   })
 
-  console.log('\n🎉 All 6 collections ready!')
+  console.log('\n🎉 All collections ready!')
 }
 
 main().catch(console.error)

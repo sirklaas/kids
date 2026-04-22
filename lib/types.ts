@@ -13,6 +13,32 @@ export interface Character {
   voice_style: string
   catchphrases: string
   backstory: string
+  nano_banana_prompt?: string
+  character_type?: string
+  personality_type?: string
+}
+
+export interface Series {
+  id: string
+  collectionId: string
+  collectionName: string
+  created: string
+  updated: string
+  name: string
+  description: string
+  image_url?: string
+}
+
+export interface SeriesCharacter {
+  id: string
+  collectionId: string
+  collectionName: string
+  created: string
+  updated: string
+  series_id: string
+  character_id: string
+  character_order: number
+  is_main_character: boolean
 }
 
 export interface Project {
@@ -21,13 +47,13 @@ export interface Project {
   collectionName: string
   created: string
   updated: string
-  character_id: string
+  series_id: string
   story_idea: string
   selected_title: string
   selected_subtitle: string
   stage_reached: number
   status: 'in_progress' | 'completed'
-  expand?: { character_id?: Character }
+  expand?: { series_id?: Series }
 }
 
 export interface Synopsis {
