@@ -265,11 +265,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 {characters.map((char, idx) => (
                   <div
                     key={char.link_id}
-                    onClick={() => setSelectedCharacter({
-                      ...char,
-                      visual_description: char.visual_appearance,
-                      age: char.age_group,
-                    })}
+                    onClick={() => setSelectedCharacter(char)}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedCharacter?.link_id === char.link_id
                         ? 'bg-gold/20 border border-gold'
