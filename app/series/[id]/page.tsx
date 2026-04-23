@@ -4,7 +4,8 @@ import { useEffect, useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getSeries, updateSeries, createSeries } from '@/lib/series'
-import { getSeriesCharacters } from '@/lib/series-characters'
+import { getSeriesCharacters, addCharacterToSeries, removeCharacterFromSeries } from '@/lib/series-characters'
+import { createCharacter, updateCharacter } from '@/lib/characters'
 import { Series, Character } from '@/lib/types'
 import { AICharacterGenerator } from '@/components/series/AICharacterGenerator'
 import { CharacterForm } from '@/components/series/CharacterForm'
@@ -45,14 +46,18 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
 
   async function loadSeries() {
     try {
+      console.log('Loading series with ID:', id)
       const [data, chars] = await Promise.all([
         getSeries(id),
         getSeriesCharacters(id),
       ])
+      console.log('Series loaded:', data)
+      console.log('Characters loaded:', chars)
       setSeries(data)
       setCharacters(chars)
     } catch (err) {
       console.error('Failed to load series:', err)
+      alert('Error loading series: ' + (err as Error).message)
     } finally {
       setLoading(false)
     }
@@ -76,10 +81,57 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
   }
 
   async function handleAIGenerated(aiData: any) {
-    // This would create a character - simplified for now
-    console.log('AI Generated:', aiData)
-    setShowAIGenerator(false)
-    // Refresh would happen here
+    try {
+      // Create the character
+      const newChar = await createCharacter({
+        name: aiData.name || 'New Character',
+        visual_appearance: aiData.visual_description || '',
+        age_group: aiData.age || 'child',
+        personality: aiData.personality || '',
+        catchphrases: aiData.catchphrases || '',
+        voice_style: aiData.voice_style || '',
+        backstory: aiData.backstory || '',
+        character_type: aiData.character_type || 'animal',
+        personality_type: aiData.personality_type || 'brave',
+      })
+
+      // Link to series
+      await addCharacterToSeries({
+        series_id: id,
+        character_id: newChar.id,
+        character_order: characters.length + 1,
+        is_main_character: characters.length === 0,
+      })
+
+      // Refresh characters list
+      await loadSeries()
+      setShowAIGenerator(false)
+    } catch (err) {
+      console.error('Failed to create character:', err)
+      alert('Could not create character. Please try again.')
+    }
+  }
+
+  async function handleAddNewCharacter() {
+    try {
+      const newChar = await createCharacter({
+        name: 'New Character',
+        visual_appearance: '',
+        age_group: 'child',
+        personality: '',
+      })
+      const link = await addCharacterToSeries({
+        series_id: id,
+        character_id: newChar.id,
+        character_order: characters.length + 1,
+        is_main_character: characters.length === 0,
+      })
+      await loadSeries()
+      setSelectedCharacter({ ...newChar, link_id: link.id })
+    } catch (err) {
+      console.error('Failed to add character:', err)
+      alert('Could not add character. Please try again.')
+    }
   }
 
   if (loading) {
@@ -127,8 +179,8 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
 
       {step === 1 ? (
         /* Step 1: Series Info */
-        <div className="card max-w-2xl">
-          <h2 className="heading-2 mb-6">Series Information</h2>
+        <div className="card max-w-2xl px-[14px]">
+          <h2 className="heading-2 mb-6 pt-[10px] pb-[10px] pl-[14px] pr-[14px]">Series Information</h2>
           
           <div className="space-y-6">
             <div>
@@ -139,6 +191,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 onChange={(e) => setSeries({ ...series, name: e.target.value })}
                 placeholder="e.g., Adventures of Paddington"
                 className="input w-full"
+                style={{ marginTop: '0px', marginBottom: '0px' }}
               />
             </div>
 
@@ -150,7 +203,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 placeholder="Describe your series..."
                 className="textarea w-full h-32"
               />
-              <p className="text-xs text-white/50 mt-1">
+              <p className="text-xs text-white/50 mt-1" style={{ paddingLeft: '2px', paddingRight: '2px' }}>
                 This helps the AI understand the tone and style.
               </p>
             </div>
@@ -163,6 +216,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 onChange={(e) => setSeries({ ...series, image_url: e.target.value })}
                 placeholder="https://..."
                 className="input w-full"
+                style={{ marginTop: '0px', marginBottom: '0px' }}
               />
               {series.image_url && (
                 <img
@@ -183,6 +237,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 onClick={handleSaveSeries}
                 disabled={!series.name || saving}
                 className="btn-secondary"
+                style={{ width: '104px' }}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>
@@ -210,7 +265,11 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 {characters.map((char, idx) => (
                   <div
                     key={char.link_id}
-                    onClick={() => setSelectedCharacter(char)}
+                    onClick={() => setSelectedCharacter({
+                      ...char,
+                      visual_description: char.visual_appearance,
+                      age: char.age_group,
+                    })}
                     className={`p-3 rounded-lg cursor-pointer transition-colors ${
                       selectedCharacter?.link_id === char.link_id
                         ? 'bg-gold/20 border border-gold'
@@ -232,12 +291,20 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 )}
               </div>
 
-              <button
-                onClick={() => setShowAIGenerator(true)}
-                className="btn-primary w-full mt-4"
-              >
-                🤖 AI Generate
-              </button>
+              <div className="mt-12 space-y-2">
+                <button
+                  onClick={handleAddNewCharacter}
+                  className="btn-secondary w-full"
+                >
+                  + New Character
+                </button>
+                <button
+                  onClick={() => setShowAIGenerator(true)}
+                  className="btn-primary w-full"
+                >
+                  🤖 AI Generate
+                </button>
+              </div>
             </div>
 
             <div className="flex justify-between mt-4">
@@ -256,12 +323,32 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
               <div className="card">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="heading-2">Edit Character</h3>
-                  <button
-                    onClick={() => setShowNanoBanana(true)}
-                    className="text-sm text-gold hover:text-gold/80"
-                  >
-                    🎨 Nano Banana
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setShowNanoBanana(true)}
+                      className="text-sm text-gold hover:text-gold/80"
+                    >
+                      🎨 Nano Banana
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!selectedCharacter?.link_id) return
+                        if (!confirm(`Delete "${selectedCharacter.name}"?\n\nThis cannot be undone.`)) return
+                        try {
+                          await removeCharacterFromSeries(selectedCharacter.link_id)
+                          await loadSeries()
+                          setSelectedCharacter(null)
+                          alert('✅ Character deleted')
+                        } catch (err) {
+                          console.error('Failed to delete character:', err)
+                          alert('❌ Could not delete character')
+                        }
+                      }}
+                      className="text-sm text-red-400 hover:text-red-300"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
                 </div>
                 
                 <CharacterForm
@@ -270,9 +357,42 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                   onGenerateNanoBanana={() => setShowNanoBanana(true)}
                 />
 
-                <div className="mt-6 flex justify-end gap-3">
-                  <button className="btn-secondary">Cancel</button>
-                  <button className="btn-primary">Save Changes</button>
+                <div className="mt-[50px] flex justify-end gap-3">
+                  <button 
+                    onClick={() => setSelectedCharacter(null)}
+                    className="btn-secondary"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!selectedCharacter?.id) {
+                        alert('❌ No character selected')
+                        return
+                      }
+                      try {
+                        console.log('Saving character with ID:', selectedCharacter.id)
+                        await updateCharacter(selectedCharacter.id, {
+                          name: selectedCharacter.name,
+                          visual_appearance: selectedCharacter.visual_description,
+                          age_group: selectedCharacter.age,
+                          personality: selectedCharacter.personality,
+                          catchphrases: selectedCharacter.catchphrases,
+                          voice_style: selectedCharacter.voice_style,
+                          backstory: selectedCharacter.backstory,
+                          nano_banana_prompt: selectedCharacter.nano_banana_prompt,
+                        })
+                        await loadSeries()
+                        alert('✅ Character saved!')
+                      } catch (err) {
+                        console.error('Failed to save character:', err)
+                        alert('❌ Could not save character. ID: ' + selectedCharacter.id)
+                      }
+                    }}
+                    className="btn-primary"
+                  >
+                    Save Changes
+                  </button>
                 </div>
               </div>
             ) : (
@@ -303,8 +423,8 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
           }}
           characterData={{
             name: selectedCharacter.name,
-            visual_appearance: selectedCharacter.visual_appearance || '',
-            age_group: selectedCharacter.age_group || '',
+            visual_appearance: selectedCharacter.visual_description || '',
+            age_group: selectedCharacter.age || '',
             personality: selectedCharacter.personality || '',
           }}
           seriesDescription={series.description || ''}

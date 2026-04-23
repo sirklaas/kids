@@ -10,6 +10,14 @@ export async function getProjectsForCharacter(characterId: string): Promise<Proj
   })
 }
 
+export async function getProjectsForSeries(seriesId: string): Promise<Project[]> {
+  return pb.collection('kids_projects').getFullList<Project>({
+    filter: pb.filter('series_id = {:id}', { id: seriesId }),
+    sort: 'created',
+    requestKey: null,
+  })
+}
+
 export async function getProject(id: string): Promise<Project> {
   return pb.collection('kids_projects').getOne<Project>(id, {
     expand: 'character_id',
@@ -17,17 +25,17 @@ export async function getProject(id: string): Promise<Project> {
   })
 }
 
-export async function createProject(characterId: string): Promise<Project> {
+export async function createProject(seriesId: string): Promise<Project> {
   return pb.collection('kids_projects').create<Project>(
     {
-      character_id: characterId,
+      series_id: seriesId,
       story_idea: '',
       selected_title: '',
       selected_subtitle: '',
       stage_reached: 2,
       status: 'in_progress',
     },
-    { expand: 'character_id', requestKey: null }
+    { requestKey: null }
   )
 }
 

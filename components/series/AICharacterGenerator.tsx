@@ -47,7 +47,7 @@ export function AICharacterGenerator({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          key: 'stage1_generate_character',
+          key: 'character_generate',
           values: {
             character_type: characterType,
             personality: personalityType,
@@ -57,71 +57,75 @@ export function AICharacterGenerator({
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to generate')
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('API Error:', errorData)
+        throw new Error(errorData.error || `HTTP ${response.status}`)
+      }
 
       const data = await response.json()
+      console.log('AI Response:', data)
+      
+      if (!data.text) {
+        throw new Error('No text in AI response')
+      }
+      
       const parsed = parseCharacterResponse(data.text)
+      console.log('Parsed character:', parsed)
       onGenerate({
         ...parsed,
         character_type: characterType,
         personality_type: personalityType,
       })
       onClose()
-    } catch (err) {
+    } catch (err: any) {
       console.error('Generation failed:', err)
-      alert('Could not generate character. Please try again.')
+      alert('Error: ' + (err.message || 'Could not generate character. Check console for details.'))
     } finally {
       setLoading(false)
     }
   }
 
-  function parseCharacterResponse(text: string): Partial<Character> {
-    // Try JSON first (preferred format from the seeded prompt)
-    const jsonMatch = text.match(/\{[\s\S]*\}/)
-    if (jsonMatch) {
-      try {
-        const obj = JSON.parse(jsonMatch[0])
-        return {
-          name: obj.name || '',
-          title: obj.title || '',
-          visual_description: obj.visual_description || obj.visual || '',
-          age: obj.age || '',
-          personality: obj.personality || '',
-          catchphrases: Array.isArray(obj.catchphrases)
-            ? obj.catchphrases.join('\n')
-            : obj.catchphrases || '',
-          voice_style: obj.voice_style || obj.voice || '',
-          backstory: obj.backstory || '',
-        }
-      } catch {
-        // Fall through to line-based parsing
+  function parseCharacterResponse(text: string | undefined): Partial<Character> {
+    const character: Partial<Character> = {}
+    
+    if (!text) {
+      return character
+    }
+    
+    // Clean up the text
+    const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    
+    // Extract fields using simple regex patterns
+    const patterns: Record<string, RegExp> = {
+      name: /\*\*NAME:?\*\*\s*[:\-]?\s*([^\n]+)/i,
+      visual_description: /\*\*VISUAL(?:\s+APPEARANCE)?:?\*\*\s*[:\-]?\s*([^\n]+(?:\n(?![\*#])[^\n]+)*)/i,
+      age: /\*\*AGE:?\*\*\s*[:\-]?\s*([^\n]+)/i,
+      personality: /\*\*PERSONALITY(?:\s+TRAITS)?:?\*\*\s*[:\-]?\s*([^\n]+(?:\n(?![\*#])[^\n]+)*)/i,
+      catchphrases: /\*\*CATCHPHRASES?:?\*\*\s*[:\-]?\s*([^\n]+)/i,
+      voice_style: /\*\*VOICE(?:\s+STYLE)?:?\*\*\s*[:\-]?\s*([^\n]+)/i,
+      backstory: /\*\*BACKSTORY:?\*\*\s*[:\-]?\s*([^\n]+(?:\n(?![\*#])[^\n]+)*)/i,
+    }
+    
+    for (const [field, pattern] of Object.entries(patterns)) {
+      const match = cleanText.match(pattern)
+      if (match) {
+        ;(character as any)[field] = match[1].trim().replace(/\n+/g, ' ')
       }
     }
-
-    // Fallback: parse numbered / labeled lines
-    const lines = text.split('\n').filter((l) => l.trim())
-    const character: Partial<Character> = {}
-
-    lines.forEach((line) => {
-      const lower = line.toLowerCase()
-      const value = line.split(':').slice(1).join(':').trim()
-      if (lower.includes('name:') && !character.name) {
-        character.name = value
-      } else if (lower.includes('visual') || lower.includes('appearance')) {
-        character.visual_description = value
-      } else if (lower.includes('age')) {
-        character.age = value
-      } else if (lower.includes('personality')) {
-        character.personality = value
-      } else if (lower.includes('catchphrase')) {
-        character.catchphrases = value
-      } else if (lower.includes('voice')) {
-        character.voice_style = value
-      } else if (lower.includes('backstory')) {
-        character.backstory = value
+    
+    // Fallback: if no name found, try simple line extraction
+    if (!character.name) {
+      const nameLine = cleanText.split('\n').find(line => 
+        line.match(/^\*\*NAME/i) || line.match(/^NAME:/i)
+      )
+      if (nameLine) {
+        const nameMatch = nameLine.match(/:\s*(.+)/)
+        if (nameMatch) character.name = nameMatch[1].trim()
       }
-    })
-
+    }
+    
+    console.log('Extracted fields:', Object.keys(character).filter(k => (character as any)[k]))
     return character
   }
 

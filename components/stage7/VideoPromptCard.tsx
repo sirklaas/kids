@@ -77,7 +77,7 @@ export default function VideoPromptCard({
             onClick={() => onSendToVideoAI(card.id)}
             disabled={regenerating || sending}
           >
-            {sending ? 'Sending…' : '▶ Send to Video AI'}
+            {sending ? 'Saving…' : '⬇ Save to Server'}
           </button>
         </div>
       </div>

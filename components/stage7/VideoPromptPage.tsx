@@ -34,6 +34,7 @@ interface VideoPromptPageProps {
   character: Character
   act: Act
   initialCards: StoryCardType[]
+  readableId: string
 }
 
 export default function VideoPromptPage({
@@ -41,6 +42,7 @@ export default function VideoPromptPage({
   character,
   act,
   initialCards,
+  readableId,
 }: VideoPromptPageProps) {
   const [cards, setCards] = useState(initialCards)
   const cardsRef = useRef(initialCards)
@@ -181,19 +183,110 @@ export default function VideoPromptPage({
     }
   }
 
-  function handleSendToVideoAI(_id: string) {
-    // Stubbed — Video AI integration not yet implemented
+  async function handleSendToVideoAI(id: string) {
+    const card = cardsRef.current.find((c) => c.id === id)
+    if (!card) return
+    
+    setSendingId(id)
+    
+    // Save to server folder
+    const data = {
+      readable_id: readableId,
+      project_id: project.id,
+      project_title: project.selected_title,
+      character: character.name,
+      act,
+      clip_label: clipLabel(act, card.expand?.plot_card_id?.order ?? 0),
+      scene_beat: card.expand?.plot_card_id?.scene_beat ?? '',
+      written_scene: card.written_scene,
+      environment: card.environment,
+      characters: card.characters,
+      voice_over: card.voice_over,
+      spoken_text: card.spoken_text,
+      sound_effects: card.sound_effects,
+      music: card.music,
+    }
+    
+    try {
+      const res = await fetch('/api/save-video-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      
+      if (!res.ok) throw new Error('Failed to save')
+      const result = await res.json()
+      
+      if (result.success) {
+        console.log('[VideoAI] Saved to:', result.filepath)
+        alert(`✅ Saved to ${result.filepath}`)
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (err) {
+      console.error('[VideoAI] Error:', err)
+      alert('❌ Failed to save: ' + (err as Error).message)
+    }
+    
+    setSendingId(null)
   }
 
-  function handleSendAll() {
-    // Stubbed — Video AI integration not yet implemented
+  async function handleSendAll() {
+    setSendingId('all')
+    
+    // Save all cards to server
+    const data = {
+      readable_id: readableId,
+      project_id: project.id,
+      project_title: project.selected_title,
+      character: character.name,
+      act,
+      cards: cardsRef.current.map((card, i) => ({
+        order: i + 1,
+        clip_label: clipLabel(act, card.expand?.plot_card_id?.order ?? 0),
+        scene_beat: card.expand?.plot_card_id?.scene_beat ?? '',
+        written_scene: card.written_scene,
+        environment: card.environment,
+        characters: card.characters,
+        voice_over: card.voice_over,
+        spoken_text: card.spoken_text,
+        sound_effects: card.sound_effects,
+        music: card.music,
+      })),
+    }
+    
+    try {
+      const res = await fetch('/api/save-video-prompt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+      
+      if (!res.ok) throw new Error('Failed to save')
+      const result = await res.json()
+      
+      if (result.success) {
+        console.log('[VideoAI] Saved all to:', result.filepath)
+        alert(`✅ Saved all to ${result.filepath}`)
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (err) {
+      console.error('[VideoAI] Error:', err)
+      alert('❌ Failed to save: ' + (err as Error).message)
+    }
+    
+    setSendingId(null)
   }
 
   return (
     <div>
       <div className="page-header">
         <div className="flex flex-col gap-1.5">
-          <div className="label">{project.selected_title || 'Video Project'}</div>
+          <div className="flex items-center justify-between">
+            <div className="label">{project.selected_title || 'Video Project'}</div>
+            <div className="text-xs text-white/40 font-mono">{readableId}</div>
+          </div>
           <div className="act-indicator">
             {ACT_ORDER.map((a, i) => {
               const isActive = a === act
@@ -249,7 +342,7 @@ export default function VideoPromptPage({
             onClick={handleSendAll}
             disabled={regeneratingId !== null || sendingId !== null}
           >
-            ▶ Send All to Video AI
+            {sendingId === 'all' ? '⏳ Saving All...' : '⬇ Save All to Server'}
           </button>
           {error && <div className="text-xs text-red-400">{error}</div>}
         </div>

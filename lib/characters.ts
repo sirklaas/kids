@@ -1,38 +1,45 @@
 import pb from '@/lib/pocketbase'
 import type { Character } from '@/lib/types'
 
-export async function getAllCharacters(): Promise<Character[]> {
-  return pb.collection('kids_characters').getFullList<Character>({ sort: 'created' })
+export interface CreateCharacterInput {
+  name: string
+  visual_appearance?: string
+  age_group?: string
+  personality?: string
+  catchphrases?: string
+  voice_style?: string
+  backstory?: string
+  character_type?: string
+  personality_type?: string
+  nano_banana_prompt?: string
 }
 
-export async function getCharacter(id: string): Promise<Character> {
-  return pb.collection('kids_characters').getOne<Character>(id)
+export async function createCharacter(data: CreateCharacterInput): Promise<Character> {
+  return pb.collection('kids_characters').create<Character>({
+    name: data.name,
+    visual_appearance: data.visual_appearance || '',
+    age_group: data.age_group || 'child',
+    personality: data.personality || '',
+    catchphrases: data.catchphrases || '',
+    voice_style: data.voice_style || '',
+    backstory: data.backstory || '',
+    character_type: data.character_type || 'animal',
+    personality_type: data.personality_type || 'brave',
+    nano_banana_prompt: data.nano_banana_prompt || '',
+  }, { requestKey: null })
 }
 
 export async function updateCharacter(
   id: string,
-  data: Partial<Omit<Character, 'id' | 'collectionId' | 'collectionName' | 'created' | 'updated'>>
+  data: Partial<CreateCharacterInput>
 ): Promise<Character> {
-  return pb.collection('kids_characters').update<Character>(id, data)
-}
-
-export async function createCharacter(
-  data: Partial<Omit<Character, 'id' | 'collectionId' | 'collectionName' | 'created' | 'updated'>>
-): Promise<Character> {
-  return pb.collection('kids_characters').create<Character>({
-    name: 'New Character',
-    title: '',
-    avatar_url: '',
-    age: '',
-    personality: '',
-    visual_description: '',
-    voice_style: '',
-    catchphrases: '',
-    backstory: '',
-    ...data,
-  })
+  return pb.collection('kids_characters').update<Character>(id, data, { requestKey: null })
 }
 
 export async function deleteCharacter(id: string): Promise<boolean> {
-  return pb.collection('kids_characters').delete(id)
+  return pb.collection('kids_characters').delete(id, { requestKey: null })
+}
+
+export async function getCharacter(id: string): Promise<Character> {
+  return pb.collection('kids_characters').getOne<Character>(id, { requestKey: null })
 }

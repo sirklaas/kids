@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Synopsis } from '@/lib/types'
 
 interface TitleCardProps {
@@ -18,12 +18,20 @@ export default function TitleCard({
   onUpdate,
   onUse,
 }: TitleCardProps) {
-  const [title, setTitle] = useState(synopsis.title)
-  const [subtitle, setSubtitle] = useState(synopsis.subtitle)
+  const [title, setTitle] = useState(synopsis.title || '')
+  const [subtitle, setSubtitle] = useState(synopsis.subtitle || '')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  
+  // Update local state when synopsis changes
+  useEffect(() => {
+    setTitle(synopsis.title || '')
+    setSubtitle(synopsis.subtitle || '')
+  }, [synopsis.title, synopsis.subtitle])
 
   async function handleRegenerate() {
     setLoading(true)
+    setError(null)
     try {
       const res = await fetch('/api/ai', {
         method: 'POST',
@@ -52,24 +60,40 @@ export default function TitleCard({
       setTitle(newTitle)
       setSubtitle(newSubtitle)
       onUpdate(synopsis.id, newTitle, newSubtitle)
+    } catch (err) {
+      setError('❌ Regenerate failed')
     } finally {
       setLoading(false)
     }
   }
 
   async function handleUse() {
+    if (!title.trim()) {
+      setError('❌ Title cannot be empty')
+      return
+    }
     setLoading(true)
+    setError(null)
     try {
       await onUse(synopsis.id)
+    } catch (err) {
+      setError('❌ Failed to use title')
     } finally {
       setLoading(false)
     }
   }
 
+  const isEmpty = !synopsis.title && !synopsis.subtitle
+
   return (
-    <div className="card">
+    <div className={`card ${isEmpty ? 'border-red-500/30 bg-red-500/5' : ''}`}>
       <div className="card-body flex items-center gap-4">
         <div className="flex-1 flex flex-col gap-2">
+          {isEmpty && (
+            <div className="text-xs text-red-400">
+              ⚠️ Empty title - click "Regenerate" or enter manually
+            </div>
+          )}
           <input
             className="input"
             value={title}
@@ -88,14 +112,15 @@ export default function TitleCard({
             }}
             placeholder="Subtitle"
           />
+          {error && <div className="text-xs text-red-400">{error}</div>}
         </div>
         <div className="flex flex-col items-end gap-2 shrink-0">
           <button
             className="btn btn-primary"
             onClick={handleUse}
-            disabled={loading}
+            disabled={loading || !title.trim()}
           >
-            {loading ? 'Generating…' : 'Use this →'}
+            {loading ? 'Working…' : 'Use this →'}
           </button>
           <button
             className="btn btn-ghost btn-sm"

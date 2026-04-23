@@ -30,6 +30,8 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: 'AI API key not configured' }, { status: 500 })
     }
 
+    console.log('[AI] Sending prompt:', { key, system: system?.slice(0, 50) + '...', user: user?.slice(0, 50) + '...' })
+    
     const client = new Anthropic({ apiKey })
     const message = await client.messages.create({
       model: 'claude-sonnet-4-6',
@@ -39,6 +41,8 @@ export async function POST(request: Request): Promise<Response> {
     })
     const first = message.content[0]
     const text = first?.type === 'text' ? first.text : ''
+    
+    console.log('[AI] Raw response:', text?.slice(0, 200) + '...')
 
     return Response.json({
       text,

@@ -20,10 +20,12 @@ export default function StoryIdeaSection({
   const [storyIdea, setStoryIdea] = useState(initialStoryIdea)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [status, setStatus] = useState<string | null>(null)
 
   async function handleRegenerate() {
     setLoading(true)
     setError(null)
+    setStatus('✨ Asking AI to regenerate story idea...')
     try {
       const res = await fetch('/api/ai', {
         method: 'POST',
@@ -41,8 +43,9 @@ export default function StoryIdeaSection({
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : ''
       setStoryIdea(text.trim())
+      setStatus('✅ Story idea regenerated!')
     } catch {
-      setError('Could not regenerate. Please try again.')
+      setError('❌ Could not regenerate. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -52,10 +55,12 @@ export default function StoryIdeaSection({
     if (!storyIdea.trim()) return
     setLoading(true)
     setError(null)
+    setStatus('🚀 Starting title generation...')
     try {
       await onGenerateTitles(storyIdea)
-    } catch {
-      setError('Could not generate titles. Please try again.')
+      setStatus('✅ Titles generated successfully!')
+    } catch (err) {
+      setError('❌ Could not generate titles: ' + (err as Error).message)
     } finally {
       setLoading(false)
     }
@@ -95,6 +100,7 @@ export default function StoryIdeaSection({
               </button>
             )}
           </div>
+          {status && <div className="text-xs text-green-400 text-right">{status}</div>}
           {error && <div className="text-xs text-red-400 text-right">{error}</div>}
         </div>
       </div>

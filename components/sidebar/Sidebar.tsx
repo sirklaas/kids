@@ -83,8 +83,9 @@ export default function Sidebar() {
 
   return (
     <nav className="sidebar">
-      <div className="sidebar-logo" style={{ fontFamily: 'var(--font-barlow), system-ui, sans-serif' }}>
-        🎬 Kids Studio
+      <div className="sidebar-logo" style={{ fontFamily: 'var(--font-barlow), system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>🎬 Kids Studio</span>
+        <span style={{ fontSize: '10px', background: '#FFD700', padding: '2px 6px', borderRadius: '4px', color: '#000', fontWeight: 600 }}>v6.0</span>
       </div>
       <div className="flex flex-col py-2 flex-1">
         {STAGES.map((stage) => {

@@ -27,6 +27,9 @@ export interface Series {
   name: string
   description: string
   image_url?: string
+  beginning_scenes?: number
+  middle_scenes?: number
+  end_scenes?: number
 }
 
 export interface SeriesCharacter {
@@ -105,13 +108,13 @@ export interface StoryCard {
 export type Act = 'beginning' | 'middle' | 'end'
 
 export const ACT_CLIP_COUNTS: Record<Act, number> = {
-  beginning: 9,
-  middle: 12,
-  end: 9,
+  beginning: 8,
+  middle: 10,
+  end: 8,
 }
 
 export const ACT_GRID: Record<Act, { cols: number; rows: number }> = {
-  beginning: { cols: 3, rows: 3 },
-  middle: { cols: 3, rows: 4 },
-  end: { cols: 3, rows: 3 },
+  beginning: { cols: 4, rows: 2 },
+  middle: { cols: 5, rows: 2 },
+  end: { cols: 4, rows: 2 },
 }

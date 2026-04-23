@@ -9,10 +9,15 @@ export default async function HomePage() {
   const series = await getAllSeries()
 
   const seriesWithCounts = await Promise.all(
-    series.map(async (s) => ({
-      ...s,
-      character_count: await getCharacterCount(s.id),
-    }))
+    series.map(async (s) => {
+      try {
+        const count = await getCharacterCount(s.id)
+        return { ...s, character_count: count }
+      } catch (err) {
+        console.error(`Failed to get character count for series ${s.id}:`, err)
+        return { ...s, character_count: 0 }
+      }
+    })
   )
 
   return (

@@ -19,6 +19,11 @@ const barlow = Barlow_Semi_Condensed({
 export const metadata: Metadata = {
   title: 'Kids Studio',
   description: 'YouTube video production dashboard',
+  other: {
+    'cache-control': 'no-cache, no-store, must-revalidate',
+    'pragma': 'no-cache',
+    'expires': '0',
+  },
 }
 
 export default function RootLayout({

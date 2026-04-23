@@ -6,7 +6,7 @@ interface CharacterCardProps {
 }
 
 export default function CharacterCard({ character }: CharacterCardProps) {
-  const initials = character.name
+  const initials = (character.name || '')
     .replace(/([A-Z])/g, ' $1')
     .trim()
     .split(' ')

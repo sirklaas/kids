@@ -64,15 +64,14 @@ export function Step2CharacterBuilder({
     try {
       const newChar = await createCharacter({
         name: aiData?.name || 'New Character',
-        title: aiData?.title || '',
-        visual_description: aiData?.visual_description || '',
-        age: aiData?.age || '',
+        visual_appearance: aiData?.visual_description || '',
+        age_group: aiData?.age || 'child',
         personality: aiData?.personality || '',
         catchphrases: aiData?.catchphrases || '',
         voice_style: aiData?.voice_style || '',
         backstory: aiData?.backstory || '',
-        character_type: aiData?.character_type || '',
-        personality_type: aiData?.personality_type || '',
+        character_type: aiData?.character_type || 'animal',
+        personality_type: aiData?.personality_type || 'brave',
       })
 
       const link = await addCharacterToSeries({
@@ -116,9 +115,8 @@ export function Step2CharacterBuilder({
     try {
       await updateCharacter(selectedCharacter.id, {
         name: selectedCharacter.name,
-        title: selectedCharacter.title,
-        visual_description: selectedCharacter.visual_description,
-        age: selectedCharacter.age,
+        visual_appearance: selectedCharacter.visual_description,
+        age_group: selectedCharacter.age,
         personality: selectedCharacter.personality,
         catchphrases: selectedCharacter.catchphrases,
         voice_style: selectedCharacter.voice_style,
@@ -176,20 +174,20 @@ export function Step2CharacterBuilder({
             ))}
           </div>
 
-          <div className="mt-4 space-y-2">
+          <div className="mt-12 space-y-2">
+            <button
+              onClick={() => handleAddCharacter()}
+              disabled={!canAddMore}
+              className="btn-secondary w-full"
+            >
+              + New Character
+            </button>
             <button
               onClick={() => setShowAIGenerator(true)}
               disabled={!canAddMore}
               className="btn-primary w-full"
             >
               🤖 AI Generate
-            </button>
-            <button
-              onClick={() => handleAddCharacter()}
-              disabled={!canAddMore}
-              className="btn-secondary w-full"
-            >
-              + Manual Add
             </button>
             {!canAddMore && (
               <p className="text-xs text-center text-white/50">Maximum 8 characters reached</p>

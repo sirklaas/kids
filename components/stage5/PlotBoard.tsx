@@ -43,9 +43,28 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
   const dragIndexRef = useRef<number | null>(null)
   const cardsRef = useRef(initialCards)
 
+  // Debug: log initial cards
+  useEffect(() => {
+    console.log(`[PlotBoard/${act}] 📊 Received ${initialCards.length} initial cards`)
+  }, [act, initialCards])
+
   useEffect(() => {
     window.dispatchEvent(new CustomEvent('kids:stage', { detail: 5 }))
-  }, [])
+    
+    // Fetch fresh plot cards on mount
+    async function fetchCards() {
+      console.log(`[PlotBoard/${act}] 🔄 Fetching plot cards for project:`, project.id)
+      const { getPlotCardsForProject } = await import('@/lib/plot-cards')
+      const allCards = await getPlotCardsForProject(project.id)
+      const actCards = allCards
+        .filter((c) => c.act === act)
+        .sort((a, b) => a.order - b.order)
+      console.log(`[PlotBoard/${act}] ✅ Fetched`, actCards.length, 'cards')
+      setCards(actCards)
+      cardsRef.current = actCards
+    }
+    fetchCards()
+  }, [act, project.id])
 
   const actIndex = ACT_ORDER.indexOf(act)
   const prevAct = actIndex > 0 ? ACT_ORDER[actIndex - 1] : null
@@ -98,7 +117,13 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
   async function handleExecute() {
     setExecuting(true)
     setExecuteError(null)
+    console.log(`[Stage 6/${act}] 🚀 Starting scene generation for`, cardsRef.current.length, 'plot cards')
     try {
+      const profile = buildCharacterProfile(character)
+      const beats = cardsRef.current.map((c) => c.scene_beat)
+      console.log(`[Stage 6/${act}] 📋 Scene beats:`, beats)
+      
+      console.log(`[Stage 6/${act}] 🤖 Calling AI to write scenes...`)
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -106,25 +131,37 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
           key: 'stage6_write_scenes',
           values: {
             character_name: character.name,
-            character_profile: buildCharacterProfile(character),
+            character_profile: profile,
             act,
-            scene_beats_json: JSON.stringify(cardsRef.current.map((c) => c.scene_beat)),
+            scene_beats_json: JSON.stringify(beats),
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      if (!res.ok) throw new Error(`AI request failed: ${res.status} ${res.statusText}`)
+      
       const data = await res.json()
+      console.log(`[Stage 6/${act}] 📥 AI raw response:`, data.text?.slice(0, 200) + '...')
+      
       const text = typeof data?.text === 'string' ? data.text : '[]'
       let scenes: unknown[]
       try {
         scenes = JSON.parse(text)
-      } catch {
-        scenes = []
+        console.log(`[Stage 6/${act}] ✅ Parsed`, scenes.length, 'scenes')
+      } catch (parseErr) {
+        console.error(`[Stage 6/${act}] ❌ JSON parse error:`, parseErr)
+        throw new Error('AI returned invalid JSON')
       }
-      if (!Array.isArray(scenes)) scenes = []
+      
+      if (!Array.isArray(scenes)) {
+        console.error(`[Stage 6/${act}] ❌ Scenes is not an array:`, scenes)
+        throw new Error('AI did not return an array of scenes')
+      }
 
+      console.log(`[Stage 6/${act}] 🗑️ Deleting old story cards for act...`)
       await deleteStoryCardsForAct(project.id, act)
+      console.log(`[Stage 6/${act}] ✅ Old cards deleted`)
 
+      console.log(`[Stage 6/${act}] 💾 Creating`, cardsRef.current.length, 'story cards...')
       await Promise.all(
         cardsRef.current.map((card, i) => {
           const raw = scenes[i]
@@ -133,6 +170,7 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
               ? (raw as Record<string, unknown>)
               : {}
           const str = (v: unknown) => (typeof v === 'string' ? v : '')
+          console.log(`[Stage 6/${act}] 💾 Creating card ${i + 1}:`, { written_scene: str(s.written_scene)?.slice(0, 30) })
           return createStoryCard({
             plot_card_id: card.id,
             project_id: project.id,
@@ -146,14 +184,17 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
           })
         })
       )
+      console.log(`[Stage 6/${act}] ✅ Story cards created`)
 
       if (project.stage_reached < 6) {
         await updateProject(project.id, { stage_reached: 6 })
       }
 
+      console.log(`[Stage 6/${act}] 🎉 Done! Navigating to story page...`)
       router.push(`/project/${project.id}/story/${act}`)
-    } catch {
-      setExecuteError('Could not generate scenes. Please try again.')
+    } catch (err) {
+      console.error(`[Stage 6/${act}] ❌ Error in handleExecute:`, err)
+      setExecuteError('❌ Could not generate scenes: ' + (err as Error).message)
     } finally {
       setExecuting(false)
     }
@@ -205,7 +246,13 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
       </div>
 
       <div className="page-body">
-        <div className="grid grid-cols-3 gap-10">
+        {cards.length === 0 && (
+          <div className="card text-center py-12 text-white/50">
+            <div className="text-lg mb-2">📭 No plot cards found</div>
+            <div className="text-sm">Go back to Stage 4 and click "Generate Plotboard"</div>
+          </div>
+        )}
+        <div className={`grid gap-6 ${act === 'middle' ? 'grid-cols-5' : 'grid-cols-4'}`}>
           {cards.map((card, index) => (
             <PlotCard
               key={card.id}

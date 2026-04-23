@@ -84,17 +84,13 @@ Title: {{title}}
 Beginning: {{synopsis_beginning}}
 Middle: {{synopsis_middle}}
 End: {{synopsis_end}}
+Scene Counts: {{beginning_count}} beginning + {{middle_count}} middle + {{end_count}} end = {{total_count}} total scenes
 
-Generate exactly 30 scene beats split across three acts.
+Generate exactly {{total_count}} scene beats split across three acts ({{beginning_count}} beginning + {{middle_count}} middle + {{end_count}} end).
 Each beat is one sentence describing a single visual moment in the video.
-Return ONLY a JSON object:
-{
-  "beginning": ["beat 1", "beat 2", "beat 3", "beat 4", "beat 5", "beat 6", "beat 7", "beat 8", "beat 9"],
-  "middle": ["beat 1", "beat 2", "beat 3", "beat 4", "beat 5", "beat 6", "beat 7", "beat 8", "beat 9", "beat 10", "beat 11", "beat 12"],
-  "end": ["beat 1", "beat 2", "beat 3", "beat 4", "beat 5", "beat 6", "beat 7", "beat 8", "beat 9"]
-}
-The beginning array must have exactly 9 items, middle exactly 12, end exactly 9.`,
-    notes: 'Stage 5 — generate all 30 plot card scene beats. Returns JSON object with 3 arrays.',
+Return ONLY a JSON object with three arrays named "beginning", "middle", and "end".
+The beginning array must have exactly {{beginning_count}} items, middle exactly {{middle_count}}, end exactly {{end_count}}.`,
+    notes: 'Stage 5 — generate dynamic plot card scene beats based on series settings. Returns JSON object with 3 arrays.',
   },
   {
     key: 'stage6_write_scenes',

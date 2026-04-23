@@ -16,14 +16,52 @@ export async function createStoryCard(data: {
 }
 
 export async function getStoryCardsForAct(projectId: string, act: Act): Promise<StoryCard[]> {
+  console.log(`[StoryCards] 🔍 Fetching for project ${projectId}, act ${act}`)
+  
+  // Fetch plot cards for this project/act first
+  const { getPlotCardsForProject } = await import('./plot-cards')
+  const plotCards = await getPlotCardsForProject(projectId)
+  const actPlotCards = plotCards.filter(pc => pc.act === act)
+  const plotCardIds = new Set(actPlotCards.map(pc => pc.id))
+  
+  console.log(`[StoryCards] 📊 Found ${actPlotCards.length} plot cards for act ${act}`)
+  
+  if (actPlotCards.length === 0) {
+    console.log(`[StoryCards] ⚠️ No plot cards for act ${act}, returning empty`)
+    return []
+  }
+  
+  // Fetch only story cards for this project (much more efficient)
   const all = await pb.collection('kids_story_cards').getFullList<StoryCard>({
-    filter: pb.filter('project_id = {:id}', { id: projectId }),
-    expand: 'plot_card_id',
     requestKey: null,
+    filter: `project_id ~ "${projectId}"`,
+    expand: 'plot_card_id',
   })
-  return all
-    .filter((sc) => sc.expand?.plot_card_id?.act === act)
-    .sort((a, b) => (a.expand?.plot_card_id?.order ?? 0) - (b.expand?.plot_card_id?.order ?? 0))
+  
+  console.log(`[StoryCards] 📊 Found ${all.length} story cards for project`)
+  
+  // Filter by plot_card_id belonging to this act
+  const filtered = all.filter((sc) => {
+    const plotId = sc.plot_card_id
+    if (typeof plotId === 'string') return plotCardIds.has(plotId)
+    if (Array.isArray(plotId)) return plotCardIds.has(plotId[0])
+    if (plotId && typeof plotId === 'object' && 'id' in plotId) return plotCardIds.has((plotId as any).id)
+    return false
+  })
+  
+  console.log(`[StoryCards] ✅ Found ${filtered.length} cards for act ${act}`)
+  
+  // Sort by plot card order
+  const plotCardOrder = new Map(actPlotCards.map(pc => [pc.id, pc.order]))
+  return filtered.sort((a, b) => {
+    const aPlotId = typeof a.plot_card_id === 'string' ? a.plot_card_id :
+                   Array.isArray(a.plot_card_id) ? a.plot_card_id[0] :
+                   (a.plot_card_id as any)?.id
+    const bPlotId = typeof b.plot_card_id === 'string' ? b.plot_card_id :
+                   Array.isArray(b.plot_card_id) ? b.plot_card_id[0] :
+                   (b.plot_card_id as any)?.id
+    return (plotCardOrder.get(aPlotId) ?? 0) - (plotCardOrder.get(bPlotId) ?? 0)
+  })
 }
 
 export async function deleteStoryCardsForAct(projectId: string, act: Act): Promise<void> {

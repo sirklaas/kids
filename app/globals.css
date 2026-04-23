@@ -71,12 +71,14 @@
            border disabled:opacity-40 disabled:cursor-not-allowed;
   }
   .btn-primary {
-    @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
+    @apply px-4 py-0 font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
            text-white;
     background: linear-gradient(135deg, #4F1271 0%, #3d0e58 100%);
     border-color: rgba(233, 196, 106, 0.4);
+    border-radius: 60px;
+    height: 34px;
   }
   .btn-primary:hover {
     background: linear-gradient(135deg, #5a1582 0%, #4F1271 100%);
@@ -84,34 +86,40 @@
     box-shadow: 0 4px 20px rgba(79, 18, 113, 0.4);
   }
   .btn-secondary {
-    @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
+    @apply px-4 py-0 font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed;
-    background: linear-gradient(135deg, #e9c46a 0%, #d4b055 100%);
+    background: linear-gradient(90deg, rgba(240, 219, 117, 1) 0%, rgba(231, 240, 168, 1) 100%);
     border-color: #e9c46a;
     color: #1a0b2e;
     box-shadow: 0 2px 8px rgba(233, 196, 106, 0.2);
+    border-radius: 60px;
+    height: 34px;
   }
   .btn-secondary:hover {
-    background: linear-gradient(135deg, #f4d47a 0%, #e9c46a 100%);
+    background: linear-gradient(90deg, rgba(245, 224, 127, 1) 0%, rgba(236, 245, 178, 1) 100%);
     border-color: #f4d47a;
     box-shadow: 0 4px 16px rgba(233, 196, 106, 0.4);
     transform: translateY(-1px);
   }
   .btn-ghost {
-    @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
+    @apply px-4 py-0 font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
            bg-transparent hover:bg-white/10 text-white/60 hover:text-white border-transparent;
+    border-radius: 60px;
+    height: 34px;
   }
   .btn-success {
-    @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
+    @apply px-4 py-0 font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
            text-white;
     background: linear-gradient(135deg, rgba(233, 196, 106, 0.9) 0%, rgba(202, 166, 84, 0.9) 100%);
     border-color: rgba(79, 18, 113, 0.4);
     color: #1a0b2e;
+    border-radius: 60px;
+    height: 34px;
   }
   .btn-success:hover {
     background: linear-gradient(135deg, #e9c46a 0%, #d4b055 100%);
@@ -119,13 +127,16 @@
     box-shadow: 0 4px 20px rgba(233, 196, 106, 0.3);
   }
   .btn-danger {
-    @apply px-4 py-2 rounded-md font-medium text-sm transition-colors
+    @apply px-4 py-0 font-medium text-sm transition-colors
            cursor-pointer inline-flex items-center gap-2 select-none
            border disabled:opacity-40 disabled:cursor-not-allowed
            bg-red-600/20 hover:bg-red-600/30 text-red-400 border-red-500/40;
+    border-radius: 60px;
+    height: 34px;
   }
   .btn-sm {
-    @apply text-xs px-3 py-1.5;
+    @apply text-xs px-3;
+    height: 28px;
   }
 
   /* Cards - Unified Series Style (Deep Purple with Gold) */
@@ -138,10 +149,11 @@
       rgba(79, 18, 113, 0.08) 50%,
       rgba(233, 196, 106, 0.05) 100%
     );
-    border: 1px solid rgba(79, 18, 113, 0.4);
-    box-shadow: 
+    border: 1px solid rgba(177, 118, 208, 0.4);
+    box-shadow:
       0 4px 16px rgba(0, 0, 0, 0.3),
       inset 0 1px 0 rgba(233, 196, 106, 0.1);
+    padding: 14px;
   }
   
   .card-selected {
@@ -255,12 +267,14 @@
     letter-spacing: 0.15em; /* Wider for readability */
   }
   
-  .field-label { 
+  .field-label {
     @apply text-white/40 block;
     font-size: 0.75rem;
     font-weight: 500;
     margin-bottom: 0.25rem;
     letter-spacing: 0.02em;
+    padding-left: 14px;
+    padding-right: 14px;
   }
   
   .stage-label { 
