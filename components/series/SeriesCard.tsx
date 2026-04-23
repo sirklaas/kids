@@ -122,15 +122,16 @@ export function SeriesCard({ series }: SeriesCardProps) {
 
         {/* Scene Counts */}
         <div className="mt-3 pt-3 border-t border-white/10" suppressHydrationWarning>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center justify-between gap-1">
+            <div className="flex items-center gap-1 text-sm">
               <input
                 type="number"
                 min={1}
                 max={50}
                 value={scenes.beginning}
                 onChange={(e) => handleSceneChange('beginning', e.target.value)}
-                className="w-12 bg-white/10 border border-white/20 rounded px-1 py-1.5 text-center text-white text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                className="w-10 bg-white/10 border border-white/20 rounded px-1 py-1 text-center text-white text-sm focus:outline-none focus:ring-1 focus:ring-gold appearance-none"
+                style={{ appearance: 'none' }}
                 suppressHydrationWarning
               />
               <input
@@ -139,7 +140,8 @@ export function SeriesCard({ series }: SeriesCardProps) {
                 max={50}
                 value={scenes.middle}
                 onChange={(e) => handleSceneChange('middle', e.target.value)}
-                className="w-12 bg-white/10 border border-white/20 rounded px-1 py-1.5 text-center text-white text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                className="w-10 bg-white/10 border border-white/20 rounded px-1 py-1 text-center text-white text-sm focus:outline-none focus:ring-1 focus:ring-gold appearance-none"
+                style={{ appearance: 'none' }}
                 suppressHydrationWarning
               />
               <input
@@ -148,15 +150,16 @@ export function SeriesCard({ series }: SeriesCardProps) {
                 max={50}
                 value={scenes.end}
                 onChange={(e) => handleSceneChange('end', e.target.value)}
-                className="w-12 bg-white/10 border border-white/20 rounded px-1 py-1.5 text-center text-white text-sm focus:outline-none focus:ring-1 focus:ring-gold"
+                className="w-10 bg-white/10 border border-white/20 rounded px-1 py-1 text-center text-white text-sm focus:outline-none focus:ring-1 focus:ring-gold appearance-none"
+                style={{ appearance: 'none' }}
                 suppressHydrationWarning
               />
             </div>
             <button
               onClick={handleSaveScenes}
               disabled={saving}
-              className="btn-primary text-xs px-3 py-1.5"
-              style={{ height: '33px' }}
+              className="btn-primary text-xs px-2"
+              style={{ height: '33px', minWidth: '50px' }}
             >
               {saving ? '...' : 'Save'}
             </button>
@@ -166,16 +169,16 @@ export function SeriesCard({ series }: SeriesCardProps) {
 
       {/* Actions */}
       <div className="mt-4 pt-4 border-t border-white/10 flex gap-2">
-        <button onClick={handleUseSeries} className="btn-primary flex-1 text-sm py-2" style={{ height: '33px' }}>Use</button>
-        <button onClick={handleEditSeries} className="btn-secondary flex-1 text-sm py-2" style={{ height: '33px' }}>Edit</button>
         <button
           onClick={handleDelete}
           className="btn-secondary flex-1 text-sm py-2 bg-white/10 hover:bg-white/20 text-white/60 border-white/20"
           style={{ height: '33px' }}
           title="Delete series"
         >
-          Delete
+          🗑️
         </button>
+        <button onClick={handleEditSeries} className="btn-secondary flex-1 text-sm py-2" style={{ height: '33px' }}>Edit</button>
+        <button onClick={handleUseSeries} className="btn-primary flex-1 text-sm py-2" style={{ height: '33px' }}>Use</button>
       </div>
     </div>
   )
