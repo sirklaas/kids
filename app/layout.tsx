@@ -7,6 +7,7 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
   display: 'swap',
+  preload: false,
 })
 
 const barlow = Barlow_Semi_Condensed({
@@ -14,6 +15,7 @@ const barlow = Barlow_Semi_Condensed({
   subsets: ['latin'],
   variable: '--font-barlow',
   display: 'swap',
+  preload: false,
 })
 
 export const metadata: Metadata = {
