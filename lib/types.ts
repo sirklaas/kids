@@ -30,6 +30,7 @@ export interface Series {
   beginning_scenes?: number
   middle_scenes?: number
   end_scenes?: number
+  visual_style?: string
 }
 
 export interface SeriesCharacter {
@@ -102,6 +103,8 @@ export interface StoryCard {
   spoken_text: string
   sound_effects: string
   music: string
+  image_url?: string
+  image_prompt?: string
   expand?: { plot_card_id?: PlotCard }
 }
 

@@ -44,6 +44,8 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
   const cardsRef = useRef(initialCards)
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null)
   const [generatingPromptId, setGeneratingPromptId] = useState<string | null>(null)
+  const [generatingImageId, setGeneratingImageId] = useState<string | null>(null)
+  const [generatingAllImages, setGeneratingAllImages] = useState(false)
   const [executing, setExecuting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -195,6 +197,47 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
     }
   }
 
+  async function handleGenerateImage(id: string) {
+    setGeneratingImageId(id)
+    setError(null)
+    try {
+      const res = await fetch('/api/generate-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ storyCardId: id }),
+      })
+      if (!res.ok) throw new Error('Failed to generate image')
+      const data = await res.json()
+      
+      // Update local state with the returned image
+      setCards((prev) => {
+        const next = prev.map((c) => (c.id === id ? { ...c, image_url: data.imageUrl, image_prompt: data.imagePrompt } : c))
+        cardsRef.current = next
+        return next
+      })
+    } catch (err) {
+      setError('Could not generate image. Make sure the API is set up.')
+    } finally {
+      setGeneratingImageId(null)
+    }
+  }
+
+  async function handleGenerateAllImages() {
+    setGeneratingAllImages(true)
+    setError(null)
+    try {
+      for (const card of cardsRef.current) {
+        if (!card.image_url) {
+          await handleGenerateImage(card.id)
+        }
+      }
+    } catch (err) {
+      setError('Error generating some images.')
+    } finally {
+      setGeneratingAllImages(false)
+    }
+  }
+
   async function handleExecuteAll() {
     setExecuting(true)
     setError(null)
@@ -301,8 +344,10 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
               onUpdate={handleUpdate}
               onRegenerate={handleRegenerate}
               onGeneratePrompt={handleGeneratePrompt}
+              onGenerateImage={handleGenerateImage}
               regenerating={regeneratingId === card.id || (autoGenerating && (!card.written_scene || card.written_scene.trim() === ''))}
               generatingPrompt={generatingPromptId === card.id}
+              generatingImage={generatingImageId === card.id || generatingAllImages}
             />
           ))}
         </div>
@@ -313,13 +358,22 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
           ← Back
         </Link>
         <div className="flex flex-col items-end gap-2">
-          <button
-            className="btn btn-primary"
-            onClick={handleExecuteAll}
-            disabled={executing || regeneratingId !== null || generatingPromptId !== null}
-          >
-            {executing ? 'Generating prompts…' : `Execute ${ACT_LABELS[act]} → Video Prompts`}
-          </button>
+          <div className="flex gap-3">
+            <button
+              className="btn btn-secondary"
+              onClick={handleGenerateAllImages}
+              disabled={generatingAllImages || executing || autoGenerating}
+            >
+              {generatingAllImages ? 'Generating...' : `✨ Generate All Frames`}
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={handleExecuteAll}
+              disabled={executing || regeneratingId !== null || generatingPromptId !== null || generatingAllImages}
+            >
+              {executing ? 'Generating prompts…' : `Execute ${ACT_LABELS[act]} → Video Prompts`}
+            </button>
+          </div>
           {error && <div className="text-xs text-red-400">{error}</div>}
         </div>
       </div>

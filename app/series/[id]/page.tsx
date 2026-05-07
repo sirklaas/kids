@@ -24,6 +24,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
     name: '',
     description: '',
     image_url: '',
+    visual_style: '',
   })
   const [characters, setCharacters] = useState<Array<Character & { link_id: string; character_order: number; is_main_character: boolean }>>([])
   const [loading, setLoading] = useState(!isNew)
@@ -72,6 +73,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
         name: series.name,
         description: series.description,
         image_url: series.image_url,
+        visual_style: series.visual_style,
       })
     } catch (err) {
       console.error('Failed to save:', err)
@@ -206,6 +208,38 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
               <p className="text-xs text-white/50 mt-1" style={{ paddingLeft: '2px', paddingRight: '2px' }}>
                 This helps the AI understand the tone and style.
               </p>
+            </div>
+
+            <div>
+              <label className="field-label">Visual Style (For AI Images) *</label>
+              <textarea
+                value={series.visual_style || ''}
+                onChange={(e) => setSeries({ ...series, visual_style: e.target.value })}
+                placeholder="e.g., 3D Pixar Animation, vibrant, soft lighting"
+                className="textarea w-full h-20 mb-2"
+              />
+              <div className="flex flex-col gap-2 px-[2px]">
+                <span className="text-xs text-white/50">Quick Presets:</span>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    '🌟 3D Pixar Animation, vibrant, soft lighting, highly detailed',
+                    '🎨 2D Flat Vector Art, bold colors, simple shapes, modern illustration',
+                    '🧱 Stop Motion Claymation, tactile textures, studio lighting, miniature set',
+                    '🌸 Studio Ghibli Anime style, beautiful watercolor backgrounds, nostalgic',
+                  ].map((preset) => {
+                    const presetText = preset.split(' ').slice(1).join(' ') // Remove emoji for the actual prompt
+                    return (
+                      <button
+                        key={preset}
+                        onClick={() => setSeries({ ...series, visual_style: presetText })}
+                        className="text-xs px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded transition-colors text-left"
+                      >
+                        {preset}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
 
             <div>
