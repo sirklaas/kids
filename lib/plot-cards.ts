@@ -7,7 +7,7 @@ export async function getPlotCardsForProject(projectId: string): Promise<PlotCar
   
   const cards = await pb.collection('kids_plot_cards').getFullList<PlotCard>({
     requestKey: null,
-    filter: pb.filter('project_id = {:id}', { id: projectId }),
+    filter: pb.filter('project_id ~ {:id}', { id: projectId }),
   })
   
   console.log(`[PlotCards] ✅ Found ${cards.length} cards for project ${projectId}`)
