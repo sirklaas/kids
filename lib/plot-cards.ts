@@ -5,11 +5,9 @@ import { ACT_CLIP_COUNTS } from '@/lib/types'
 export async function getPlotCardsForProject(projectId: string): Promise<PlotCard[]> {
   console.log(`[PlotCards] 🔍 Fetching cards for project: ${projectId}`)
   
-  // Use PocketBase filter for project_id (much more efficient)
-  // PocketBase stores relations as arrays, so we use ?~ (contains) operator
   const cards = await pb.collection('kids_plot_cards').getFullList<PlotCard>({
     requestKey: null,
-    filter: `project_id ~ "${projectId}"`,
+    filter: pb.filter('project_id = {:id}', { id: projectId }),
   })
   
   console.log(`[PlotCards] ✅ Found ${cards.length} cards for project ${projectId}`)
@@ -46,15 +44,13 @@ export async function createPlotCardsForProject(
   const counts = expectedCounts || ACT_CLIP_COUNTS
   console.log(`[PlotCards] 📊 Using counts:`, counts)
   
-  // First delete existing cards for this project
-  await deletePlotCardsForProject(projectId)
-  
   const acts: Array<{ act: Act; list: string[] }> = [
     { act: 'beginning', list: beats.beginning },
     { act: 'middle', list: beats.middle },
     { act: 'end', list: beats.end },
   ]
 
+  // Validate counts BEFORE deleting any existing data
   for (const { act, list } of acts) {
     if (list.length !== counts[act]) {
       const errorMsg = `Expected ${counts[act]} beats for act "${act}", got ${list.length}. Make sure your series scene counts match what the AI was asked to generate.`
@@ -62,6 +58,9 @@ export async function createPlotCardsForProject(
       throw new Error(errorMsg)
     }
   }
+
+  // Validation passed, now we can safely delete existing cards
+  await deletePlotCardsForProject(projectId)
 
   const allCards: PlotCard[] = []
   for (const { act, list } of acts) {
