@@ -7,6 +7,8 @@ interface SynopsisSectionProps {
   storyIdea: string
   onUpdateSynopsis: (id: string, data: Pick<Synopsis, 'beginning' | 'middle' | 'end'>) => void
   onExecuteSynopsis: (id: string) => Promise<void>
+  onGenerateSynopses: () => Promise<void>
+  isGenerating?: boolean
 }
 
 export default function SynopsisSection({
@@ -15,10 +17,33 @@ export default function SynopsisSection({
   storyIdea,
   onUpdateSynopsis,
   onExecuteSynopsis,
+  onGenerateSynopses,
+  isGenerating,
 }: SynopsisSectionProps) {
   const sharedTitle = synopses[0]?.title
   const sharedSubtitle = synopses[0]?.subtitle
   
+  if (synopses.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="card text-center p-12 max-w-xl mx-auto w-full border-dashed border-white/20 bg-white/5">
+          <div className="text-4xl mb-4">✨</div>
+          <h2 className="heading-2 mb-2">Clean Sheet</h2>
+          <p className="text-body text-white/60 mb-8">
+            Your title is locked in. Ready to brainstorm the story?
+          </p>
+          <button
+            className="btn btn-primary px-8 py-3 text-lg h-auto"
+            onClick={onGenerateSynopses}
+            disabled={isGenerating}
+          >
+            {isGenerating ? 'Generating variations...' : 'Generate 4 Synopsis Angles'}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   // Check for empty synopses
   const emptyCount = synopses.filter(s => !s.beginning && !s.middle && !s.end).length
   const hasContent = synopses.some(s => s.beginning || s.middle || s.end)

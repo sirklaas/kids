@@ -77,12 +77,7 @@ export default function ProjectPage({
       setStoryIdea(idea)
       console.log('[Stage 3] 🚀 Starting title generation for idea:', idea.slice(0, 50) + '...')
 
-      console.log('[Stage 3] 🗑️ Deleting existing synopses...')
-      const existing = await getSynopsesForProject(project.id)
-      if (existing.length > 0) {
-        await Promise.all(existing.map((s) => deleteSynopsis(s.id)))
-      }
-      console.log('[Stage 3] ✅ Deleted', existing.length, 'existing synopses')
+      console.log('[Stage 3] 💡 Creating local title options (not saving to DB yet)...')
 
       console.log('[Stage 3] 💾 Updating project to stage 3...')
       await updateProject(project.id, { story_idea: idea, stage_reached: 3 })
@@ -127,25 +122,23 @@ export default function ProjectPage({
         console.warn('[Stage 3] ⚠️ Some titles are empty:', emptyTitles)
       }
 
-      console.log('[Stage 3] 💾 Saving', pairs.length, 'synopses to PocketBase...')
-      const created = await Promise.all(
-        pairs.slice(0, 5).map((pair, i) => {
-          const title = typeof pair.title === 'string' ? pair.title : ''
-          const subtitle = typeof pair.subtitle === 'string' ? pair.subtitle : ''
-          console.log(`[Stage 3] 💾 Creating synopsis ${i + 1}:`, { title, subtitle })
-          return createSynopsis({
-            project_id: project.id,
-            title,
-            subtitle,
-          }).then(record => {
-            // PocketBase might not return all fields, so merge with what we sent
-            return { ...record, title, subtitle }
-          })
-        })
-      )
-      console.log('[Stage 3] ✅ Created', created.length, 'synopses:', created.map(s => ({ id: s.id, title: s.title, subtitle: s.subtitle })))
+      console.log('[Stage 3] 💡 Setting local title state...')
+      const localTitles = pairs.slice(0, 5).map((pair, i) => ({
+        id: `temp_title_${i}`,
+        collectionId: '',
+        collectionName: '',
+        created: '',
+        updated: '',
+        project_id: project.id,
+        title: typeof pair.title === 'string' ? pair.title : '',
+        subtitle: typeof pair.subtitle === 'string' ? pair.subtitle : '',
+        beginning: '',
+        middle: '',
+        end: '',
+        selected: false,
+      }))
       
-      setSynopses(created)
+      setSynopses(localTitles as Synopsis[])
       setStage2Exiting(true)
       setTimeout(() => {
         setStage2Gone(true)
@@ -167,19 +160,16 @@ export default function ProjectPage({
   const [isProcessing, setIsProcessing] = useState(false)
 
   async function handleSelectTitle(synopsisId: string) {
-    if (isProcessing) {
-      console.log('[Stage 4] ⚠️ Already processing, ignoring click')
-      return
-    }
+    if (isProcessing) return
     setIsProcessing(true)
     
     try {
       const selected = synopses.find((s) => s.id === synopsisId)
       if (!selected) {
-        throw new Error('Selected synopsis not found')
+        throw new Error('Selected title not found')
       }
 
-      console.log('[Stage 4] 🚀 Starting synopsis generation for title:', selected.title)
+      console.log('[Stage 4] 🚀 Locking in selected title:', selected.title)
 
       // Start stage 3 exit immediately
       setStage3Exiting(true)
@@ -193,26 +183,26 @@ export default function ProjectPage({
       })
       console.log('[Stage 4] ✅ Project updated')
 
-      // Delete all title-option synopses, create 4 new synopsis variations for the chosen title
-      const validSynopses = synopses.filter(s => s.id)
-      console.log('[Stage 4] 🗑️ Deleting', validSynopses.length, 'old title synopses...')
-      try {
-        // Delete one by one with small delay to avoid rate limits
-        for (const s of validSynopses) {
-          await deleteSynopsis(s.id)
-          await new Promise(r => setTimeout(r, 100))
-        }
-        console.log('[Stage 4] ✅ Deleted', validSynopses.length, 'synopses')
-      } catch (deleteErr) {
-        console.error('[Stage 4] ❌ Failed to delete synopses:', deleteErr)
-        throw new Error('Failed to delete old synopses: ' + (deleteErr as Error).message)
-      }
-
       setSelectedTitle(selected.title)
       setSelectedSubtitle(selected.subtitle)
-      setGeneratingSynopses(true)
       
-      const { title: chosenTitle, subtitle: chosenSubtitle } = selected
+      // Clear the temporary titles to show the Clean Sheet
+      setSynopses([])
+      
+      setSynopsesEntering(true)
+      setStage(4)
+      setTimeout(() => setSynopsesEntering(false), 450)
+    } catch (err) {
+      console.error('[Stage 4] ❌ Error in handleSelectTitle:', err)
+      alert('❌ Error locking in title: ' + (err as Error).message)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  async function handleGenerateSynopses() {
+    setGeneratingSynopses(true)
+    try {
       const ANGLES = [
         'emotional and heartfelt',
         'funny and playful',
@@ -226,13 +216,12 @@ export default function ProjectPage({
         const angle = ANGLES[i]
         console.log(`[Stage 4] 💾 Creating synopsis ${i + 1}/4 with angle:`, angle)
         
-        // Small delay between creations to avoid rate limits
         if (i > 0) await new Promise(r => setTimeout(r, 200))
         
         const syn = await createSynopsis({
           project_id: project.id,
-          title: chosenTitle,
-          subtitle: chosenSubtitle,
+          title: selectedTitle,
+          subtitle: selectedSubtitle,
         })
           
         console.log(`[Stage 4] 🤖 Calling AI for angle "${angle}"...`)
@@ -244,8 +233,8 @@ export default function ProjectPage({
             values: {
               character_name: character.name,
               story_idea: storyIdea,
-              title: chosenTitle,
-              subtitle: chosenSubtitle,
+              title: selectedTitle,
+              subtitle: selectedSubtitle,
               variation_angle: angle,
             },
           }),
@@ -253,14 +242,11 @@ export default function ProjectPage({
         if (!res.ok) throw new Error(`AI failed for angle "${angle}": ${res.status}`)
         
         const resData = await res.json()
-        console.log(`[Stage 4] 📥 AI response for "${angle}":`, resData.text?.slice(0, 100) + '...')
-        
         const text = typeof resData?.text === 'string' ? resData.text : '{}'
         let parsed: { beginning?: unknown; middle?: unknown; end?: unknown }
         try {
           parsed = JSON.parse(text)
         } catch {
-          console.error(`[Stage 4] ❌ JSON parse failed for "${angle}"`)
           parsed = {}
         }
         
@@ -270,23 +256,17 @@ export default function ProjectPage({
           end: typeof parsed.end === 'string' ? parsed.end : '',
         }
         
-        console.log(`[Stage 4] 💾 Saving synopsis ${i + 1} with`, { beginning: synData.beginning?.slice(0, 30), middle: synData.middle?.slice(0, 30), end: synData.end?.slice(0, 30) })
         await updateSynopsis(syn.id, synData)
-        newSynopses.push({ ...syn, ...synData, title: chosenTitle, subtitle: chosenSubtitle })
+        newSynopses.push({ ...syn, ...synData, title: selectedTitle, subtitle: selectedSubtitle })
       }
       
       console.log('[Stage 4] ✅ Created', newSynopses.length, 'synopsis variations')
       setSynopses(newSynopses)
-      setGeneratingSynopses(false)
-      setSynopsesEntering(true)
-      setStage(4)
-      setTimeout(() => setSynopsesEntering(false), 450)
     } catch (err) {
-      console.error('[Stage 4] ❌ Error in handleSelectTitle:', err)
+      console.error('[Stage 4] ❌ Error generating synopses:', err)
       alert('❌ Error generating synopses: ' + (err as Error).message)
-      setGeneratingSynopses(false)
     } finally {
-      setIsProcessing(false)
+      setGeneratingSynopses(false)
     }
   }
 
@@ -472,11 +452,7 @@ export default function ProjectPage({
           </div>
         )}
 
-        {generatingSynopses && (
-          <div className="stage-locked-banner">Generating synopses…</div>
-        )}
-
-        {stage >= 4 && !generatingSynopses && (
+        {stage >= 4 && (
           <div className={`flex-1 overflow-hidden${synopsesEntering ? ' animate-enter-up' : ''}`}>
             <SynopsisSection
               synopses={synopses}
@@ -484,6 +460,8 @@ export default function ProjectPage({
               storyIdea={storyIdea}
               onUpdateSynopsis={handleUpdateSynopsis}
               onExecuteSynopsis={handleExecuteSynopsis}
+              onGenerateSynopses={handleGenerateSynopses}
+              isGenerating={generatingSynopses}
             />
           </div>
         )}
