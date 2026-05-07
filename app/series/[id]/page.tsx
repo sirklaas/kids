@@ -385,6 +385,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                   character={selectedCharacter}
                   onChange={(updated) => setSelectedCharacter({ ...selectedCharacter, ...updated })}
                   onGenerateNanoBanana={() => setShowNanoBanana(true)}
+                  seriesStyle={series.visual_style}
                 />
 
                 <div className="mt-[50px] flex justify-end gap-3">
@@ -411,6 +412,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                           voice_style: selectedCharacter.voice_style,
                           backstory: selectedCharacter.backstory,
                           nano_banana_prompt: selectedCharacter.nano_banana_prompt,
+                          avatar_url: selectedCharacter.avatar_url,
                         })
                         await loadSeries()
                         alert('✅ Character saved!')

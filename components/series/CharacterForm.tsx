@@ -7,6 +7,7 @@ interface CharacterFormProps {
   character: Partial<Character>
   onChange: (character: Partial<Character>) => void
   onGenerateNanoBanana?: () => void
+  seriesStyle?: string
 }
 
 export function CharacterForm({ character, onChange, onGenerateNanoBanana }: CharacterFormProps) {
@@ -51,6 +52,39 @@ export function CharacterForm({ character, onChange, onGenerateNanoBanana }: Cha
     }
   }
 
+  const [generatingAvatar, setGeneratingAvatar] = useState(false)
+
+  const handleGenerateAvatar = async () => {
+    if (!character.name?.trim() || !character.visual_description?.trim()) {
+      alert('Please add a name and visual description first')
+      return
+    }
+
+    setGeneratingAvatar(true)
+    try {
+      const response = await fetch('/api/generate-character-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: character.name,
+          visual_description: character.visual_description,
+          nano_banana_prompt: character.nano_banana_prompt || '',
+          seriesStyle: seriesStyle || 'Cartoon style',
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to generate image')
+
+      const data = await response.json()
+      onChange({ ...character, avatar_url: data.imageUrl })
+    } catch (err) {
+      console.error('Failed to generate avatar:', err)
+      alert('Could not generate avatar. Please check your Higgsfield CLI setup.')
+    } finally {
+      setGeneratingAvatar(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -77,6 +111,33 @@ export function CharacterForm({ character, onChange, onGenerateNanoBanana }: Cha
             <option value="adult">Adult</option>
             <option value="elder">Elder</option>
           </select>
+        </div>
+      </div>
+
+      <div className="flex gap-4">
+        {/* Avatar Display */}
+        <div className="w-32 h-32 shrink-0 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center overflow-hidden relative">
+          {character.avatar_url ? (
+            <img src={character.avatar_url} alt={character.name} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-2xl opacity-20">👤</span>
+          )}
+        </div>
+        
+        {/* Avatar Controls */}
+        <div className="flex-1 flex flex-col justify-center gap-2">
+          <label className="field-label">Character Avatar</label>
+          <button
+            type="button"
+            onClick={handleGenerateAvatar}
+            disabled={generatingAvatar || !character.name?.trim() || !character.visual_description?.trim()}
+            className="btn-primary py-2 self-start"
+          >
+            {generatingAvatar ? '⏳ Generating...' : '✨ Generate Profile Picture'}
+          </button>
+          <p className="text-xs text-white/50 max-w-sm">
+            Uses the Series Visual Style and the Visual Appearance below to create the master reference image.
+          </p>
         </div>
       </div>
 
