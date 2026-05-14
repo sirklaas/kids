@@ -6,51 +6,12 @@ import { Character } from '@/lib/types'
 interface CharacterFormProps {
   character: Partial<Character>
   onChange: (character: Partial<Character>) => void
-  onGenerateNanoBanana?: () => void
   seriesStyle?: string
+  onSeriesStyleChange?: (style: string) => void
 }
 
-export function CharacterForm({ character, onChange, onGenerateNanoBanana }: CharacterFormProps) {
-  const [generatingNano, setGeneratingNano] = useState(false)
+export function CharacterForm({ character, onChange, seriesStyle, onSeriesStyleChange }: CharacterFormProps) {
 
-  const handleGenerateNanoBanana = async () => {
-    if (!character.name?.trim()) {
-      alert('Please add a name first')
-      return
-    }
-    if (!character.visual_description?.trim()) {
-      alert('Please add visual appearance details first')
-      return
-    }
-
-    setGeneratingNano(true)
-    try {
-      const response = await fetch('/api/ai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          key: 'nano_banana_prompt',
-          values: {
-            name: character.name,
-            visual_appearance: character.visual_description,
-            age_group: character.age || 'child',
-            personality: character.personality || '',
-            series_description: '',
-          },
-        }),
-      })
-
-      if (!response.ok) throw new Error('Failed to generate')
-
-      const data = await response.json()
-      onChange({ ...character, nano_banana_prompt: data.text })
-    } catch (err) {
-      console.error('Failed to generate Nano Banana prompt:', err)
-      alert('Could not generate Nano Banana prompt. Please try again.')
-    } finally {
-      setGeneratingNano(false)
-    }
-  }
 
   const [generatingAvatar, setGeneratingAvatar] = useState(false)
 
@@ -114,30 +75,42 @@ export function CharacterForm({ character, onChange, onGenerateNanoBanana }: Cha
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex gap-6">
         {/* Avatar Display */}
-        <div className="w-32 h-32 shrink-0 bg-white/5 rounded-xl border border-white/10 flex items-center justify-center overflow-hidden relative">
-          {character.avatar_url ? (
-            <img src={character.avatar_url} alt={character.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-2xl opacity-20">👤</span>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-64 h-64 shrink-0 bg-black/40 rounded-xl border border-white/10 flex items-center justify-center overflow-hidden relative shadow-lg">
+            {character.avatar_url ? (
+              <img src={character.avatar_url} alt={character.name} className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-4xl opacity-20">👤</span>
+            )}
+          </div>
+          {character.name && (
+            <span className="text-lg font-medium tracking-wide text-white/90">{character.name}</span>
           )}
         </div>
         
         {/* Avatar Controls */}
-        <div className="flex-1 flex flex-col justify-center gap-2">
+        <div className="flex-1 flex flex-col justify-center gap-3">
           <label className="field-label">Character Avatar</label>
           <button
             type="button"
             onClick={handleGenerateAvatar}
             disabled={generatingAvatar || !character.name?.trim() || !character.visual_description?.trim()}
-            className="btn-primary py-2 self-start"
+            className="btn-primary py-3 px-6 self-start text-sm shadow-md"
           >
             {generatingAvatar ? '⏳ Generating...' : '✨ Generate Profile Picture'}
           </button>
-          <p className="text-xs text-white/50 max-w-sm">
-            Uses the Series Visual Style and the Visual Appearance below to create the master reference image.
-          </p>
+          
+          <div className="mt-2 p-3 bg-black/20 border border-white/5 rounded-lg max-w-sm">
+            <span className="text-xs text-white/40 block mb-1 uppercase tracking-wider">Applied Series Style:</span>
+            <span className="text-sm text-gold block">
+              {seriesStyle || '⚠️ None (Defaults to Cartoon)'}
+            </span>
+            {!seriesStyle && (
+              <p className="text-xs text-red-400 mt-1">Please set a Global Series Style on the left side first!</p>
+            )}
+          </div>
         </div>
       </div>
 
@@ -195,29 +168,7 @@ export function CharacterForm({ character, onChange, onGenerateNanoBanana }: Cha
         />
       </div>
 
-      {/* Nano Banana Prompt Section */}
-      <div className="border-t border-white/10 pt-4 mt-4">
-        <div className="flex items-center justify-between mb-3">
-          <label className="field-label">Nano Banana Image Prompt</label>
-          <button
-            type="button"
-            onClick={handleGenerateNanoBanana}
-            disabled={generatingNano || !character.name?.trim() || !character.visual_description?.trim()}
-            className="btn-secondary text-sm py-2 px-4"
-          >
-            {generatingNano ? '⏳ Generating...' : '🎨 Generate Prompt'}
-          </button>
-        </div>
-        <textarea
-          value={character.nano_banana_prompt || ''}
-          onChange={(e) => onChange({ ...character, nano_banana_prompt: e.target.value })}
-          placeholder="AI-generated prompt for consistent character images... Click 'Generate Prompt' above to create one."
-          className="textarea w-full h-24 text-sm"
-        />
-        <p className="text-xs text-white/50 mt-1">
-          This prompt is used in Nano Banana for consistent character generation.
-        </p>
-      </div>
+
     </div>
   )
 }
