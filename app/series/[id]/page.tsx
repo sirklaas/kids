@@ -29,10 +29,12 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
   const [characters, setCharacters] = useState<Array<Character & { link_id: string; character_order: number; is_main_character: boolean }>>([])
   const [loading, setLoading] = useState(!isNew)
   const [saving, setSaving] = useState(false)
+
   const [step, setStep] = useState(1)
   const [selectedCharacter, setSelectedCharacter] = useState<(Character & { link_id: string }) | null>(null)
   const [showAIGenerator, setShowAIGenerator] = useState(false)
   const [showNanoBanana, setShowNanoBanana] = useState(false)
+  const [savingCharacter, setSavingCharacter] = useState(false)
 
   useEffect(() => {
     if (isNew) {
@@ -210,37 +212,7 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
               </p>
             </div>
 
-            <div>
-              <label className="field-label">Visual Style (For AI Images) *</label>
-              <textarea
-                value={series.visual_style || ''}
-                onChange={(e) => setSeries({ ...series, visual_style: e.target.value })}
-                placeholder="e.g., 3D Pixar Animation, vibrant, soft lighting"
-                className="textarea w-full h-20 mb-2"
-              />
-              <div className="flex flex-col gap-2 px-[2px]">
-                <span className="text-xs text-white/50">Quick Presets:</span>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    '🌟 3D Pixar Animation, vibrant, soft lighting, highly detailed',
-                    '🎨 2D Flat Vector Art, bold colors, simple shapes, modern illustration',
-                    '🧱 Stop Motion Claymation, tactile textures, studio lighting, miniature set',
-                    '🌸 Studio Ghibli Anime style, beautiful watercolor backgrounds, nostalgic',
-                  ].map((preset) => {
-                    const presetText = preset.split(' ').slice(1).join(' ') // Remove emoji for the actual prompt
-                    return (
-                      <button
-                        key={preset}
-                        onClick={() => setSeries({ ...series, visual_style: presetText })}
-                        className="text-xs px-2 py-1 bg-white/5 hover:bg-white/10 border border-white/10 rounded transition-colors text-left"
-                      >
-                        {preset}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
+
 
             <div>
               <label className="field-label">Series Image URL</label>
@@ -286,80 +258,113 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
         </div>
       ) : (
         /* Step 2: Character Builder */
-        <div className="grid grid-cols-12 gap-6">
-          {/* Left: Character List */}
-          <div className="col-span-4">
-            <div className="card">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="heading-3 text-lg">Characters</h3>
-                <span className="text-xs text-white/50">{characters.length}/8</span>
+        <div className="flex flex-col gap-6">
+          {/* Top: Character Grid */}
+          <div className="card w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="heading-3 text-lg">Characters</h3>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-white/50">{characters.length}/8 Characters</span>
+                <div className="flex gap-2">
+                  <button onClick={handleAddNewCharacter} className="btn-secondary text-xs px-3 py-1">
+                    + New Character
+                  </button>
+                  <button onClick={() => setShowAIGenerator(true)} className="btn-primary text-xs px-3 py-1">
+                    🤖 AI Generate
+                  </button>
+                </div>
               </div>
+            </div>
 
-              <div className="space-y-2">
-                {characters.map((char, idx) => (
+            <div className="grid grid-cols-5 gap-6">
+                {characters.map((char) => (
                   <div
                     key={char.link_id}
                     onClick={() => setSelectedCharacter(char)}
-                    className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                      selectedCharacter?.link_id === char.link_id
-                        ? 'bg-gold/20 border border-gold'
-                        : 'bg-white/5 hover:bg-white/10'
-                    }`}
+                    className="flex flex-col items-center gap-2 cursor-pointer group"
                   >
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-white/50">#{idx + 1}</span>
-                      <span className="font-medium">{char.name}</span>
-                      {char.is_main_character && <span className="text-gold">★</span>}
+                    <div className={`w-full aspect-square rounded-lg border-2 overflow-hidden bg-black/40 flex items-center justify-center transition-colors ${
+                      selectedCharacter?.link_id === char.link_id ? 'border-gold shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'border-white/10 group-hover:border-white/30'
+                    }`}>
+                      {char.avatar_url ? (
+                        <img src={char.avatar_url} alt={char.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-2xl opacity-20 group-hover:opacity-40 transition-opacity">👤</span>
+                      )}
                     </div>
+                    <span className={`text-xs text-center truncate w-full ${
+                      selectedCharacter?.link_id === char.link_id ? 'text-gold font-medium' : 'text-white/60 group-hover:text-white'
+                    }`}>
+                      {char.name} {char.is_main_character && '★'}
+                    </span>
                   </div>
                 ))}
                 
                 {characters.length === 0 && (
-                  <p className="text-sm text-white/40 text-center py-4">
-                    No characters yet
-                  </p>
+                  <div className="col-span-5 p-12 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center text-center">
+                    <span className="text-4xl opacity-20 mb-3">👥</span>
+                    <p className="text-base text-white/40">No characters generated yet</p>
+                  </div>
                 )}
-              </div>
-
-              <div className="mt-12 space-y-2">
-                <button
-                  onClick={handleAddNewCharacter}
-                  className="btn-secondary w-full"
-                >
-                  + New Character
-                </button>
-                <button
-                  onClick={() => setShowAIGenerator(true)}
-                  className="btn-primary w-full"
-                >
-                  🤖 AI Generate
-                </button>
-              </div>
             </div>
-
-            <div className="flex justify-between mt-4">
-              <button onClick={() => setStep(1)} className="btn-secondary">
-                ← Back
-              </button>
-              <Link href="/">
-                <button className="btn-success">Done ✓</button>
-              </Link>
+          </div>
+           {/* Middle: Global Series Style */}
+          <div className="card w-full">
+            <h3 className="heading-3 text-lg mb-6">Global Series Style</h3>
+            <label className="field-label text-gold">Global Series Style *</label>
+            <textarea
+              value={series.visual_style || ''}
+              onChange={(e) => setSeries({ ...series, visual_style: e.target.value })}
+              placeholder="e.g., 3D Pixar Animation, vibrant, soft lighting"
+              className="textarea w-full h-16 mb-4 text-sm"
+            />
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-white/50">Quick Presets:</span>
+              <div className="grid grid-cols-8 gap-3">
+                {[
+                  { id: 'hand-drawn', color: 'from-orange-400 to-red-400', icon: '✏️', name: 'Hand-drawn 2D', prompt: 'Hand-drawn 2D animation style illustration, expressive black linework, soft watercolor shading, fluid bouncy movement implied, warm earthy colour palette, cinematic wide composition, detailed background, soft diffused lighting, playful whimsical mood' },
+                  { id: 'memphis', color: 'from-pink-400 to-cyan-400', icon: '🌈', name: 'Memphis style', prompt: 'Corporate Memphis design style flat illustration animation, bold clashing neon colours like hot pink cyan yellow black, oversized abstract shapes, minimalist non-representational forms, vibrant pattern backgrounds with zigzags and squiggles, high-contrast flat shading, playful postmodern 1980s mood, symmetrical wide composition' },
+                  { id: 'pixar', color: 'from-blue-400 to-emerald-400', icon: '🌟', name: 'Pixar-style 3D', prompt: 'Pixar 3D CG animation render, subsurface scattering on glossy surfaces, soft volumetric god rays, expressive and bouncy, vibrant greens and blues palette, studio-quality global illumination, adventurous curious mood, cinematic tracking shot composition' },
+                  { id: 'stop-motion', color: 'from-amber-600 to-orange-700', icon: '🧱', name: 'Stop-motion clay', prompt: 'Stop-motion claymation style, visible fingerprint textures on colourful clay forms, practical desk lamp warm lighting with soft shadows, imperfect handmade sets, charming whimsical motion blur, close-up intimate framing, cozy handmade craft mood' },
+                  { id: 'rubber-hose', color: 'from-gray-700 to-gray-900', icon: '🎩', name: 'Rubber hose', prompt: '1930s rubber hose cartoon style, ultra-flexible pie-slice limbs, bold thick black outlines, vintage speed lines for motion, exaggerated squash-and-stretch, lively energetic mood, classic title card composition with spot colours' },
+                  { id: 'minimal-flat', color: 'from-teal-400 to-blue-500', icon: '📱', name: 'Minimal flat', prompt: 'Minimalist flat 2D vector animation, solid flat colours in a clean palette, smooth geometric shapes no gradients, subtle motion paths implied, high contrast sharp edges, professional calm mood, centered symmetrical composition, app UI style' },
+                  { id: 'watercolour', color: 'from-purple-300 to-pink-300', icon: '🎨', name: 'Watercolour', prompt: 'Watercolour storybook illustration animation style, soft bleeding brush strokes and translucent layers, delicate hand-painted textures, gentle dreamy lighting, magical innocent mood, storybook double-page spread framing' },
+                  { id: 'cyberpunk', color: 'from-fuchsia-600 to-purple-900', icon: '🌃', name: 'Cyberpunk neon', prompt: 'Cyberpunk neon anime hybrid animation style, sleek futuristic designs, holographic reflections on wet surfaces in cyan magenta pinks, high-contrast bloom glows, dynamic low-angle speed lines, gritty futuristic mood, wide cinematic lens flare composition' }
+                ].map((preset) => {
+                  return (
+                    <button
+                      key={preset.name}
+                      onClick={() => setSeries({ ...series, visual_style: preset.prompt })}
+                      className="flex flex-col items-center gap-2 p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all hover:border-gold hover:shadow-[0_0_15px_rgba(255,215,0,0.1)] text-center group relative overflow-hidden"
+                      title={preset.prompt}
+                    >
+                      <div className="w-full aspect-square rounded-lg overflow-hidden relative bg-black/40 flex items-center justify-center">
+                        <img 
+                          src={`/presets/${preset.id}.png`} 
+                          alt={preset.name} 
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full bg-gradient-to-br ${preset.color} flex items-center justify-center"><span class="text-3xl">${preset.icon}</span></div>`;
+                          }}
+                        />
+                      </div>
+                      <span className="text-[11px] font-medium text-white/90 leading-tight w-full truncate">{preset.name}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Right: Character Editor */}
-          <div className="col-span-8">
+          {/* Bottom: Character Editor */}
+          <div className="w-full">
             {selectedCharacter ? (
               <div className="card">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="heading-2">Edit Character</h3>
                   <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setShowNanoBanana(true)}
-                      className="text-sm text-gold hover:text-gold/80"
-                    >
-                      🎨 Nano Banana
-                    </button>
+
                     <button
                       onClick={async () => {
                         if (!selectedCharacter?.link_id) return
@@ -374,18 +379,73 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                           alert('❌ Could not delete character')
                         }
                       }}
-                      className="text-sm text-red-400 hover:text-red-300"
+                      className="text-sm text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 font-medium"
                     >
                       🗑️ Delete
                     </button>
+
+                    <div className="w-px h-4 bg-white/20 mx-1"></div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowNanoBanana(true)}
+                      className="text-sm text-gold hover:text-gold/80 transition-colors flex items-center gap-1 font-medium"
+                    >
+                      🎨 Nano Banana
+                    </button>
+
+                    <div className="w-px h-4 bg-white/20 mx-1"></div>
+
+                    <label className="text-sm text-blue-400 hover:text-blue-300 transition-colors cursor-pointer flex items-center gap-1 font-medium">
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        className="hidden" 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          
+                          try {
+                            const formData = new FormData()
+                            formData.append('file', file)
+                            
+                            // Optional: Show loading state (could just alert for now)
+                            console.log('Uploading avatar...')
+                            
+                            const res = await fetch('/api/upload-avatar', {
+                              method: 'POST',
+                              body: formData
+                            })
+                            const data = await res.json()
+                            
+                            if (data.url) {
+                              // Update local state
+                              setSelectedCharacter({ ...selectedCharacter, avatar_url: data.url })
+                              
+                              // Persist immediately
+                              if (selectedCharacter.id) {
+                                await updateCharacter(selectedCharacter.id, { avatar_url: data.url })
+                                loadSeries()
+                              }
+                            } else {
+                              throw new Error(data.error || 'Upload failed')
+                            }
+                          } catch (err) {
+                            console.error(err)
+                            alert('❌ Failed to upload image')
+                          }
+                        }} 
+                      />
+                      📤 Upload Image
+                    </label>
                   </div>
                 </div>
                 
                 <CharacterForm
                   character={selectedCharacter}
                   onChange={(updated) => setSelectedCharacter({ ...selectedCharacter, ...updated })}
-                  onGenerateNanoBanana={() => setShowNanoBanana(true)}
                   seriesStyle={series.visual_style}
+                  onSeriesStyleChange={(style) => setSeries({ ...series, visual_style: style })}
                 />
 
                 <div className="mt-[50px] flex justify-end gap-3">
@@ -401,8 +461,11 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                         alert('❌ No character selected')
                         return
                       }
+                      setSavingCharacter(true)
                       try {
                         console.log('Saving character with ID:', selectedCharacter.id)
+                        
+                        // Save the Character
                         await updateCharacter(selectedCharacter.id, {
                           name: selectedCharacter.name,
                           visual_appearance: selectedCharacter.visual_description,
@@ -414,16 +477,24 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                           nano_banana_prompt: selectedCharacter.nano_banana_prompt,
                           avatar_url: selectedCharacter.avatar_url,
                         })
+
+                        // Save the global Series Visual Style if they edited it inside the Character form!
+                        if (series.name) {
+                          await updateSeries(id, { visual_style: series.visual_style })
+                        }
+
                         await loadSeries()
-                        alert('✅ Character saved!')
                       } catch (err) {
                         console.error('Failed to save character:', err)
                         alert('❌ Could not save character. ID: ' + selectedCharacter.id)
+                      } finally {
+                        setSavingCharacter(false)
                       }
                     }}
+                    disabled={savingCharacter}
                     className="btn-primary"
                   >
-                    Save Changes
+                    {savingCharacter ? 'Saving...' : 'Save Changes'}
                   </button>
                 </div>
               </div>
@@ -434,6 +505,23 @@ export default function EditSeriesPage({ params }: EditSeriesPageProps) {
                 </p>
               </div>
             )}
+          </div>
+
+          {/* Pipeline Navigation */}
+          <div className="flex justify-between mt-4">
+            <button onClick={() => setStep(1)} className="btn-secondary px-6 py-3">
+              ← Back
+            </button>
+            <button 
+              onClick={async () => {
+                await handleSaveSeries()
+                router.push('/')
+              }}
+              disabled={saving}
+              className="btn-success px-10 py-3 text-lg font-bold shadow-[0_0_20px_rgba(34,197,94,0.3)] transition-all hover:scale-105 active:scale-95"
+            >
+              {saving ? 'Saving...' : 'Done ✓'}
+            </button>
           </div>
         </div>
       )}
