@@ -11,6 +11,7 @@ export interface UpdateSeriesInput {
   name?: string
   description?: string
   image_url?: string
+  visual_style?: string
   beginning_scenes?: number
   middle_scenes?: number
   end_scenes?: number

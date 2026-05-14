@@ -61,7 +61,7 @@ describe('POST /api/ai', () => {
     expect(response.status).toBe(400)
   })
 
-  it('returns 500 when buildPrompt throws', async () => {
+  it('returns 502 when buildPrompt throws', async () => {
     mockBuildPrompt.mockRejectedValue(new Error('PocketBase error'))
     const request = new Request('http://localhost/api/ai', {
       method: 'POST',
@@ -69,9 +69,10 @@ describe('POST /api/ai', () => {
       headers: { 'Content-Type': 'application/json' },
     })
     const response = await POST(request)
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(502)
     const data = await response.json()
-    expect(data.error).toBe('AI request failed')
+    expect(data.error).toBe('Could not load prompt template from PocketBase')
+    expect(data.details?.message).toBe('PocketBase error')
   })
 
   it('returns 500 when Anthropic throws', async () => {

@@ -3,6 +3,7 @@ import type { Character } from '@/lib/types'
 
 export interface CreateCharacterInput {
   name: string
+  avatar_url?: string
   visual_appearance?: string
   age_group?: string
   personality?: string
@@ -17,6 +18,7 @@ export interface CreateCharacterInput {
 export async function createCharacter(data: CreateCharacterInput): Promise<Character> {
   return pb.collection('kids_characters').create<Character>({
     name: data.name,
+    avatar_url: data.avatar_url || '',
     visual_appearance: data.visual_appearance || '',
     age_group: data.age_group || 'child',
     personality: data.personality || '',

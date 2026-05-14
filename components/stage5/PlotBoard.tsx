@@ -7,6 +7,7 @@ import PlotCard from './PlotCard'
 import { updatePlotCard } from '@/lib/plot-cards'
 import { updateProject } from '@/lib/projects'
 import { createStoryCard, deleteStoryCardsForAct } from '@/lib/story-cards'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 import type { Character, Project, PlotCard as PlotCardType, Act } from '@/lib/types'
 
 const ACT_ORDER: Act[] = ['beginning', 'middle', 'end']
@@ -137,7 +138,7 @@ export default function PlotBoard({ project, character, act, initialCards }: Plo
           },
         }),
       })
-      if (!res.ok) throw new Error(`AI request failed: ${res.status} ${res.statusText}`)
+      await throwIfAiApiFailed(res)
       
       const data = await res.json()
       console.log(`[Stage 6/${act}] 📥 AI raw response:`, data.text?.slice(0, 200) + '...')

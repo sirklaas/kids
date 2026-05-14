@@ -15,6 +15,10 @@ export async function createStoryCard(data: {
   return pb.collection('kids_story_cards').create<StoryCard>(data, { requestKey: null })
 }
 
+export async function getStoryCard(id: string): Promise<StoryCard> {
+  return pb.collection('kids_story_cards').getOne<StoryCard>(id, { requestKey: null })
+}
+
 export async function getStoryCardsForAct(projectId: string, act: Act): Promise<StoryCard[]> {
   console.log(`[StoryCards] 🔍 Fetching for project ${projectId}, act ${act}`)
   
@@ -71,7 +75,20 @@ export async function deleteStoryCardsForAct(projectId: string, act: Act): Promi
 
 export async function updateStoryCard(
   id: string,
-  data: Partial<Pick<StoryCard, 'written_scene' | 'environment' | 'characters' | 'voice_over' | 'spoken_text' | 'sound_effects' | 'music'>>
+  data: Partial<
+    Pick<
+      StoryCard,
+      | 'written_scene'
+      | 'environment'
+      | 'characters'
+      | 'voice_over'
+      | 'spoken_text'
+      | 'sound_effects'
+      | 'music'
+      | 'image_url'
+      | 'image_prompt'
+    >
+  >
 ): Promise<StoryCard> {
   return pb.collection('kids_story_cards').update<StoryCard>(id, data, { requestKey: null })
 }

@@ -26,7 +26,7 @@ const getAIConfig = (): AIConfig => {
     default:
       return {
         provider: 'anthropic',
-        model: 'claude-sonnet-4-6',
+        model: process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6',
         label: 'Claude Sonnet 4.6',
       }
   }
@@ -52,9 +52,28 @@ export async function POST(request: Request): Promise<Response> {
   const { key, values } = body as { key: string; values?: Record<string, string> }
   const config = getAIConfig()
 
+  let system: string
+  let user: string
   try {
-    const { system, user } = await buildPrompt(key, values ?? {})
+    const built = await buildPrompt(key, values ?? {})
+    system = built.system
+    user = built.user
+  } catch (err) {
+    console.error('[POST /api/ai] buildPrompt failed:', err)
+    const message = err instanceof Error ? err.message : String(err)
+    return Response.json(
+      {
+        error: 'Could not load prompt template from PocketBase',
+        details: {
+          message,
+          hint: `Check NEXT_PUBLIC_POCKETBASE_URL, server connectivity, and that kids_prompts contains key "${key}".`,
+        },
+      },
+      { status: 502 }
+    )
+  }
 
+  try {
     console.log('[AI] Sending prompt:', {
       key,
       provider: config.provider,

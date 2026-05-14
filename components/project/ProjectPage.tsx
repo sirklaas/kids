@@ -8,6 +8,7 @@ import SynopsisSection from '@/components/stage4/SynopsisSection'
 import { updateProject } from '@/lib/projects'
 import { getSynopsesForProject, createSynopsis, updateSynopsis, deleteSynopsis } from '@/lib/synopses'
 import { createPlotCardsForProject } from '@/lib/plot-cards'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 import type { Character, Project, Synopsis } from '@/lib/types'
 
 interface ProjectPageProps {
@@ -92,7 +93,7 @@ export default function ProjectPage({
           values: { character_name: character.name, story_idea: idea },
         }),
       })
-      if (!res.ok) throw new Error(`AI request failed: ${res.status} ${res.statusText}`)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       console.log('[Stage 3] 📥 AI raw response:', data.text?.slice(0, 200) + '...')
       
@@ -239,7 +240,7 @@ export default function ProjectPage({
             },
           }),
         })
-        if (!res.ok) throw new Error(`AI failed for angle "${angle}": ${res.status}`)
+        await throwIfAiApiFailed(res)
         
         const resData = await res.json()
         const text = typeof resData?.text === 'string' ? resData.text : '{}'
@@ -335,7 +336,7 @@ export default function ProjectPage({
           },
         }),
       })
-      if (!res.ok) throw new Error(`AI request failed: ${res.status}`)
+      await throwIfAiApiFailed(res)
       
       const resData = await res.json()
       console.log('[Stage 5] 📥 AI raw response:', resData.text?.slice(0, 200) + '...')
@@ -343,15 +344,33 @@ export default function ProjectPage({
       const text = typeof resData?.text === 'string' ? resData.text : '{}'
       let beats: { beginning?: unknown; middle?: unknown; end?: unknown }
       try {
-        beats = JSON.parse(text)
+        let cleanText = text.trim()
+        
+        // Strip markdown blocks if they exist
+        if (cleanText.includes('```json')) {
+          cleanText = cleanText.split('```json')[1].split('```')[0].trim()
+        } else if (cleanText.includes('```')) {
+          cleanText = cleanText.split('```')[1].split('```')[0].trim()
+        }
+
+        // Sometimes the AI appends conversational text after the JSON
+        // Find the outermost object
+        const firstBrace = cleanText.indexOf('{')
+        const lastBrace = cleanText.lastIndexOf('}')
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          cleanText = cleanText.substring(firstBrace, lastBrace + 1)
+        }
+
+        beats = JSON.parse(cleanText)
         console.log('[Stage 5] ✅ Parsed beats:', { 
           beginning: Array.isArray(beats.beginning) ? beats.beginning.length : 0, 
           middle: Array.isArray(beats.middle) ? beats.middle.length : 0, 
           end: Array.isArray(beats.end) ? beats.end.length : 0 
         })
       } catch (parseErr) {
-        console.error('[Stage 5] ❌ JSON parse error:', parseErr)
-        beats = {}
+        console.error('[Stage 5] ❌ JSON parse error. Raw text was:', text)
+        console.error(parseErr)
+        throw new Error('AI returned an invalid JSON format. Please click Generate Plotboard again.')
       }
 
       const toStringArray = (v: unknown): string[] =>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import type { Synopsis } from '@/lib/types'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 
 interface TitleCardProps {
   synopsis: Synopsis
@@ -46,7 +47,7 @@ export default function TitleCard({
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : ''
       let parsed: { title?: unknown; subtitle?: unknown }
@@ -61,7 +62,7 @@ export default function TitleCard({
       setSubtitle(newSubtitle)
       onUpdate(synopsis.id, newTitle, newSubtitle)
     } catch (err) {
-      setError('❌ Regenerate failed')
+      setError('❌ Regenerate failed: ' + (err as Error).message)
     } finally {
       setLoading(false)
     }

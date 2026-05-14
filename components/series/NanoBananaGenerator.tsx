@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Modal from '@/components/ui/Modal'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 
 interface NanoBananaGeneratorProps {
   isOpen: boolean
@@ -44,13 +45,13 @@ export function NanoBananaGenerator({
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to generate')
+      await throwIfAiApiFailed(response)
 
       const data = await response.json()
       setPreview(data.text.trim())
     } catch (err) {
       console.error('Generation failed:', err)
-      alert('Could not generate prompt. Please try again.')
+      alert('Could not generate prompt: ' + (err as Error).message)
     } finally {
       setLoading(false)
     }

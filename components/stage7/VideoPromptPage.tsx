@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import VideoPromptCard, { type PromptField } from './VideoPromptCard'
 import { updateStoryCard } from '@/lib/story-cards'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 import type { Character, Project, StoryCard as StoryCardType, Act } from '@/lib/types'
 
 const ACT_ORDER: Act[] = ['beginning', 'middle', 'end']
@@ -82,7 +83,7 @@ export default function VideoPromptPage({
               },
             }),
           })
-          if (!res.ok) throw new Error(res.statusText)
+          await throwIfAiApiFailed(res)
           const data = await res.json()
           const text = typeof data?.text === 'string' ? data.text : '{}'
           let parsed: Record<string, unknown>
@@ -152,7 +153,7 @@ export default function VideoPromptPage({
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : '{}'
       let parsed: Record<string, unknown>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 
 interface StoryIdeaSectionProps {
   characterName: string
@@ -39,13 +40,13 @@ export default function StoryIdeaSection({
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : ''
       setStoryIdea(text.trim())
       setStatus('✅ Story idea regenerated!')
-    } catch {
-      setError('❌ Could not regenerate. Please try again.')
+    } catch (err) {
+      setError('❌ Could not regenerate: ' + (err as Error).message)
     } finally {
       setLoading(false)
     }

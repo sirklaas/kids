@@ -6,6 +6,7 @@ import Link from 'next/link'
 import StoryCard from './StoryCard'
 import { updateStoryCard } from '@/lib/story-cards'
 import { updateProject } from '@/lib/projects'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 import type { Character, Project, StoryCard as StoryCardType, Act } from '@/lib/types'
 
 const ACT_ORDER: Act[] = ['beginning', 'middle', 'end']
@@ -80,7 +81,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
               },
             }),
           })
-          if (!res.ok) throw new Error(res.statusText)
+          await throwIfAiApiFailed(res)
           const data = await res.json()
           const writtenScene = typeof data?.text === 'string' ? data.text : ''
           await updateStoryCard(card.id, { written_scene: writtenScene })
@@ -134,7 +135,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const writtenScene = typeof data?.text === 'string' ? data.text : ''
       await updateStoryCard(id, { written_scene: writtenScene })
@@ -171,7 +172,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : '{}'
       let parsed: Record<string, unknown>
@@ -197,14 +198,14 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
     }
   }
 
-  async function handleGenerateImage(id: string) {
+  async function handleGenerateImage(id: string, instructions?: string) {
     setGeneratingImageId(id)
     setError(null)
     try {
       const res = await fetch('/api/generate-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ storyCardId: id }),
+        body: JSON.stringify({ storyCardId: id, instructions }),
       })
       if (!res.ok) throw new Error('Failed to generate image')
       const data = await res.json()
@@ -261,7 +262,7 @@ export default function StoryPage({ project, character, act, initialCards }: Sto
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : '[]'
       let prompts: unknown[]

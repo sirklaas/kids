@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import type { Synopsis } from '@/lib/types'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 
 interface SynopsisCardProps {
   synopsis: Synopsis
@@ -57,7 +58,7 @@ export default function SynopsisCard({
           },
         }),
       })
-      if (!res.ok) throw new Error(res.statusText)
+      await throwIfAiApiFailed(res)
       const data = await res.json()
       const text = typeof data?.text === 'string' ? data.text : ''
       let parsed: { beginning?: unknown; middle?: unknown; end?: unknown }

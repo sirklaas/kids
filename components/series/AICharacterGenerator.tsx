@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Modal from '@/components/ui/Modal'
 import type { Character } from '@/lib/types'
+import { throwIfAiApiFailed } from '@/lib/ai-api-error'
 
 interface AICharacterGeneratorProps {
   isOpen: boolean
@@ -57,11 +58,7 @@ export function AICharacterGenerator({
         }),
       })
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        console.error('API Error:', errorData)
-        throw new Error(errorData.error || `HTTP ${response.status}`)
-      }
+      await throwIfAiApiFailed(response)
 
       const data = await response.json()
       console.log('AI Response:', data)

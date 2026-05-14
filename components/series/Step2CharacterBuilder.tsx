@@ -223,9 +223,6 @@ export function Step2CharacterBuilder({
               onChange={(updated) =>
                 setSelectedCharacter({ ...selectedCharacter, ...updated } as Partial<LinkedCharacter>)
               }
-              onGenerateNanoBanana={() => {
-                alert('Nano Banana generator coming in next task!')
-              }}
             />
 
             <div className="mt-6 flex justify-end">
